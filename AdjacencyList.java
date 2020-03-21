@@ -15,7 +15,6 @@ public class AdjacencyList<T> {
 
     public boolean insertVertex(T val) {
         if (find(val)) {
-            System.out.println("found " + val);
             return false;
         } else {
             ArrayList<T> vertex = new ArrayList<T>();
