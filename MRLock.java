@@ -7,39 +7,39 @@ public class MRLock {
     AtomicInteger head;
     AtomicInteger tail;
 
-    void init(MRLock lock, int size) {
-        lock.buffer = new Cell[size];
-        lock.mask = size - 1;
-        lock.head.set(0);
-        lock.tail.set(0);
+    void init(int size) {
+        this.buffer = new Cell[size];
+        this.mask = size - 1;
+        this.head.set(0);
+        this.tail.set(0);
 
         for (int i = 0; i < size; i++) {
             // initialize bitset to all 1s
-            BitSet s = lock.buffer[i].bits;
+            BitSet s = this.buffer[i].bits;
             for (int j = 0; j < s.length(); j++) {
                 s.set(j);
             }
             // initialize seq
-            lock.buffer[i].seq.set(i);
+            this.buffer[i].seq.set(i);
         }
     }
 
-    void uninit(MRLock lock) {
-        lock.buffer = new Cell[]{};
+    void uninit() {
+        this.buffer = new Cell[]{};
     }
 
-    int acquire_lock(MRLock lock, BitSet r) {
+    int acquire_lock(BitSet r) {
         Cell c;
         int pos;
 
         for (;;) {
-            pos = lock.tail.get();
-            c = lock.buffer[pos & lock.mask];
+            pos = this.tail.get();
+            c = this.buffer[pos & this.mask];
             int seq = c.seq.get();
             int diff = seq - pos;
 
             if (diff == 0) {
-                if (lock.tail.compareAndSet(pos, pos + 1)) {
+                if (this.tail.compareAndSet(pos, pos + 1)) {
                     break;
                 }
             }
@@ -48,11 +48,11 @@ public class MRLock {
         c.bits = r;
         c.seq.set(pos + 1);
 
-        int spin = lock.head.get();
+        int spin = this.head.get();
         while (spin != pos) {
-            BitSet currBitset = (BitSet)lock.buffer[spin & lock.mask].bits;
+            BitSet currBitset = (BitSet)this.buffer[spin & this.mask].bits;
             currBitset.and(r);
-            if (pos - lock.buffer[spin & lock.mask].seq.get() > lock.mask ||
+            if (pos - this.buffer[spin & this.mask].seq.get() > this.mask ||
                         !(currBitset.cardinality() > 0)) {
                 spin++;
             }
@@ -61,25 +61,25 @@ public class MRLock {
         return pos;
     }
 
-    void release_lock(MRLock lock, int h) {
-        lock.buffer[h & lock.mask].bits.clear();
-        int pos = lock.head.get();
-        while (lock.buffer[pos & lock.mask].bits.cardinality() == 0) {
-            Cell c = lock.buffer[pos & lock.mask];
+    void release_lock(int h) {
+        this.buffer[h & this.mask].bits.clear();
+        int pos = this.head.get();
+        while (this.buffer[pos & this.mask].bits.cardinality() == 0) {
+            Cell c = this.buffer[pos & this.mask];
             int seq = c.seq.get();
             int diff = seq - (pos + 1);
 
             if (diff == 0) {
-                if (lock.head.compareAndSet(pos, pos + 1)) {
+                if (this.head.compareAndSet(pos, pos + 1)) {
                     for (int i = 0; i < c.bits.length(); i++) {
                         c.bits.set(i);
                     }
-                    c.seq.set(pos + lock.mask + 1);
+                    c.seq.set(pos + this.mask + 1);
                 }
             }
         }
 
-        pos = lock.head.get();
+        pos = this.head.get();
     }
 }
 
