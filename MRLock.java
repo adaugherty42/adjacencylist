@@ -48,13 +48,13 @@ public class MRLock {
         c.bits = r;
         c.seq.set(pos + 1);
 
-        int spin = this.head.get();
-        while (spin != pos) {
-            BitSet currBitset = (BitSet)this.buffer[spin & this.mask].bits;
+        int spin_pos = this.head.get();
+        while (spin_pos != pos) {
+            BitSet currBitset = (BitSet)this.buffer[spin_pos & this.mask].bits;
             currBitset.and(r);
-            if (pos - this.buffer[spin & this.mask].seq.get() > this.mask ||
+            if (pos - this.buffer[spin_pos & this.mask].seq.get() > this.mask ||
                         !(currBitset.cardinality() > 0)) {
-                spin++;
+                spin_pos++;
             }
         }
 
