@@ -28,8 +28,8 @@ class MRLockable {
         this.resourceMask = resourceMask;
     }
 
-    int lock() {
-        return lock.acquire_lock(resourceMask);
+    void lock() {
+        lockHandle = lock.acquire_lock(resourceMask);
     }
 
     void unlock() {

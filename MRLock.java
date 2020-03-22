@@ -10,13 +10,15 @@ public class MRLock {
     void init(int size) {
         this.buffer = new Cell[size];
         this.mask = size - 1;
-        this.head.set(0);
-        this.tail.set(0);
+        this.head = new AtomicInteger(0);
+        this.tail = new AtomicInteger(0);
 
         for (int i = 0; i < size; i++) {
+            this.buffer[i] = new Cell();
+            this.buffer[i].bits = new BitSet(size);
             // initialize bitset to all 1s
             BitSet s = this.buffer[i].bits;
-            for (int j = 0; j < s.length(); j++) {
+            for (int j = 0; j < size; j++) {
                 s.set(j);
             }
             // initialize seq
@@ -77,9 +79,8 @@ public class MRLock {
                     c.seq.set(pos + this.mask + 1);
                 }
             }
+            pos = this.head.get();
         }
-
-        pos = this.head.get();
     }
 }
 
@@ -87,8 +88,18 @@ class Cell {
     AtomicInteger seq;
     BitSet bits;
 
+    public Cell() {
+        this.seq = new AtomicInteger(0);
+        this.bits = new BitSet();
+    }
+
     public Cell(AtomicInteger seq, BitSet bits) {
         this.seq = seq;
         this.bits = bits;
+    }
+
+    public String toString() {
+        return "Sequence number: " + seq.get() + "\n"
+                + "Bits: " + bits.toString();
     }
 }
