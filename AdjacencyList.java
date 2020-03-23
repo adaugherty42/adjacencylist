@@ -15,7 +15,6 @@ public class AdjacencyList<T> {
 
     public boolean insertVertex(T val) {
         if (find(val)) {
-            System.out.println("found " + val);
             return false;
         } else {
             ArrayList<T> vertex = new ArrayList<T>();
@@ -39,16 +38,19 @@ public class AdjacencyList<T> {
     public boolean insertEdge(T from, T to) {
         int i = indexOf(from);
         int j = indexOf(to);
-        // both vertexes need to already be in the adjacency list to make an edge between them
+        // both vertexes need to already be in the adjacency list to make an edge
+        // between them
         if (i == -1 || j == -1) {
             return false;
         } else {
-            ArrayList<T> vertex = vertexes.get(i);
+            ArrayList<T> vertexFrom = vertexes.get(i);
+            ArrayList<T> vertexTo = vertexes.get(j);
             // only add edge if it doesn't already exist
-            if (vertex.contains(to)) {
+            if (vertexFrom.contains(to) || vertexTo.contains(from)) {
                 return false;
             } else {
-                vertex.add(to);
+                vertexFrom.add(to);
+                vertexTo.add(from);
                 return true;
             }
         }
@@ -61,9 +63,10 @@ public class AdjacencyList<T> {
         if (i == -1 || j == -1) {
             return false;
         } else {
-            ArrayList<T> vertex = vertexes.get(i);
+            ArrayList<T> vertexFrom = vertexes.get(i);
+            ArrayList<T> vertexTo = vertexes.get(j);
             // can only delete an edge if it exists
-            return vertex.remove(to);
+            return vertexFrom.remove(to) && vertexTo.remove(from);
         }
     }
 
@@ -75,7 +78,8 @@ public class AdjacencyList<T> {
     private void deleteAllEdges(T toDelete) {
         for (ArrayList<T> vertex : vertexes) {
             if (!vertex.get(0).equals(toDelete)) {
-                // we don't need the return value here, it will just remove the edge if it exists
+                // we don't need the return value here, it will just remove the edge if it
+                // exists
                 vertex.remove(toDelete);
             }
         }
@@ -105,9 +109,7 @@ public class AdjacencyList<T> {
             if (vertex.size() > 1) {
                 System.out.print(": [");
                 for (int i = 1; i < vertex.size(); i++) {
-                    System.out.print(i < vertex.size() - 1
-                                        ? vertex.get(i) + ", "
-                                        : vertex.get(i));
+                    System.out.print(i < vertex.size() - 1 ? vertex.get(i) + ", " : vertex.get(i));
                 }
                 System.out.print("]");
             }
@@ -125,6 +127,8 @@ public class AdjacencyList<T> {
         list.print();
         System.out.println();
         list.deleteEdge(5, 4);
+        list.insertVertex(6);
+        list.insertEdge(6, 4);
         list.print();
         System.out.println();
         list.deleteVertex(12);
@@ -134,6 +138,8 @@ public class AdjacencyList<T> {
         list.print();
         System.out.println();
         list.deleteVertex(5);
+        list.insertEdge(5, 3);
+        list.deleteVertex(3);
         list.print();
     }
 }
