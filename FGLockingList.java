@@ -61,15 +61,15 @@ public class FGLockingList<T>{
         return list.get(ind).getValue();
     }
 
-    public Node<T> getNode(int ind){
+    public Node<T> getNodeAtIndex(int ind){
         return list.get(ind);
     }
 
-    public Pair<Node<T>, Integer> getNodeAndIndex(T val) {
-        for (int i = 0; i < list.size(); i++) {
-            Node<T> node = list.get(i);
-            if (node.getValue() == val) {
-                return new Pair(node, i);
+    public Node<T> getNode(T val) {
+        for (int i = 0; i < this.list.size(); i++) {
+            Node<T> node = this.list.get(i);
+            if (node.getValue().equals(val)) {
+                return node;
             }
         }
         return null;

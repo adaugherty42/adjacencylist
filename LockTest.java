@@ -1,13 +1,14 @@
 import javafx.util.Pair;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Vector;
 
 public class LockTest {
-    static int NUM_THREADS = 4;
+    static int NUM_THREADS = 1;
     static int NUM_RESOURCES = 2000;
-    static int NUM_ITERATIONS = 15;
+    static int NUM_ITERATIONS = 30;
 
     public static void main(String[] args) {
         // Grab args if they exist
@@ -29,7 +30,7 @@ public class LockTest {
 
         // Prepopulate list with a bunch of vertexes
         for (int i = 0; i < NUM_RESOURCES / 2; i++) {
-            adjList.insertVertex((int)(Math.random() * NUM_RESOURCES));
+            adjList.insertVertex(i);
         }
 
         // Create and start threads
@@ -74,7 +75,7 @@ class LockThread implements Runnable {
     public void run() {
         for (int i = 0; i < numIterations; i++) {
             Vector<Integer> resources = new Vector<>(7);
-            ArrayList<Pair> pairs = new ArrayList<Pair>();
+            ArrayList<Node> nodes = new ArrayList<Node>();
             // For each iteration, we need to generate a random list of resources to do operations on
 //            for (int j = 0; j < 3; ) {
 //                int randomVal = (int)(Math.random() * Integer.MAX_VALUE);
@@ -82,11 +83,11 @@ class LockThread implements Runnable {
             // get random value
             int rand = (int)(Math.random() * numResources);
             // see if it's in list
-            Pair pair = adjList.getNodeAndIndex(rand);
+            Node node = adjList.getNode(rand);
             // if it isn't, add index to resources vector and Pair to our pairs list
-            if (pair != null) {
-                resources.add((Integer) pair.getValue());
-                pairs.add(pair);
+            if (node != null) {
+                resources.add((Integer)node.getValue());
+                nodes.add(node);
             } else {
                 continue;
             }
@@ -98,9 +99,8 @@ class LockThread implements Runnable {
             MRLockable lockable = resourceAlloc.createLockable(resources);
             // Lock
             lockable.lock();
-            if (!validate(pairs)) {
-                continue;
-            }
+            System.out.println("Blah1");
+            // Do stuff
             adjList.deleteVertex(resources.get(0));
 //            adjList.insertVertex(resources.get(1));
 //            adjList.insertVertex(resources.get(2));
@@ -109,6 +109,7 @@ class LockThread implements Runnable {
 //            adjList.deleteEdge(resources.get(7), resources.get(8));
 //            adjList.deleteVertex(resources.get(9));
             lockable.unlock();
+            System.out.println("Blah2");
         }
     }
 }

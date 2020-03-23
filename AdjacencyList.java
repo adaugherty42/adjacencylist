@@ -1,5 +1,3 @@
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -43,8 +41,8 @@ public class AdjacencyList<T> {
         if (i == -1 || j == -1) {
             return false;
         } else {
-            ArrayList<T> vertexFrom = vertexes.getNode(i).edges;
-            ArrayList<T> vertexTo = vertexes.getNode(j).edges;
+            ArrayList<T> vertexFrom = vertexes.getNodeAtIndex(i).edges;
+            ArrayList<T> vertexTo = vertexes.getNodeAtIndex(j).edges;
             // only add edge if it doesn't already exist
             if (vertexFrom.contains(to) || vertexTo.contains(from)) {
                 return false;
@@ -63,8 +61,8 @@ public class AdjacencyList<T> {
         if (i == -1 || j == -1) {
             return false;
         } else {
-            ArrayList<T> vertexFrom = vertexes.getNode(i).edges;
-            ArrayList<T> vertexTo = vertexes.getNode(j).edges;
+            ArrayList<T> vertexFrom = vertexes.getNodeAtIndex(i).edges;
+            ArrayList<T> vertexTo = vertexes.getNodeAtIndex(j).edges;
             // can only delete an edge if it exists
             return vertexFrom.remove(to) && vertexTo.remove(from);
         }
@@ -99,8 +97,8 @@ public class AdjacencyList<T> {
         return match ? i : -1;
     }
 
-    public Pair getNodeAndIndex(T val) {
-        return vertexes.getNodeAndIndex(val);
+    public Node<T> getNode(T val) {
+        return this.vertexes.getNode(val);
     }
 
     public int size() {
