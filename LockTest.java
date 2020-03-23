@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.BitSet;
+// import java.util.BitSet;
 import java.util.Vector;
 
 public class LockTest {
@@ -21,7 +21,8 @@ public class LockTest {
 
         AdjacencyList<Integer> adjList = new AdjacencyList<>();
         MRLock lock = new MRLock();
-        // This ResourceAllocator will be passed to the spawned threads, which will use it to
+        // This ResourceAllocator will be passed to the spawned threads, which will use
+        // it to
         // create Lockable objects for their requests.
         ResourceAllocator resourceAlloc = new ResourceAllocator(lock, NUM_RESOURCES);
 
@@ -61,9 +62,10 @@ class LockThread implements Runnable {
     public void run() {
         for (int i = 0; i < numIterations; i++) {
             Vector<Integer> resources = new Vector<>(10);
-            // For each iteration, we need to generate a random list of resources to do operations on
+            // For each iteration, we need to generate a random list of resources to do
+            // operations on
             for (int j = 0; j < 10; j++) {
-                int randomResource = (int)(Math.random() * numResources);
+                int randomResource = (int) (Math.random() * numResources);
                 resources.add(randomResource);
             }
             // Create lockable object
