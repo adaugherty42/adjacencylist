@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -95,6 +97,14 @@ public class AdjacencyList<T> {
             }
         }
         return match ? i : -1;
+    }
+
+    public Pair getNodeAndIndex(T val) {
+        return vertexes.getNodeAndIndex(val);
+    }
+
+    public int size() {
+        return this.vertexes.size();
     }
 
     public void print() {

@@ -1,10 +1,12 @@
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Vector;
 
 public class LockTest {
     static int NUM_THREADS = 4;
-    static int NUM_RESOURCES = 32;
+    static int NUM_RESOURCES = 2000;
     static int NUM_ITERATIONS = 15;
 
     public static void main(String[] args) {
@@ -25,6 +27,11 @@ public class LockTest {
         // create Lockable objects for their requests.
         ResourceAllocator resourceAlloc = new ResourceAllocator(lock, NUM_RESOURCES);
 
+        // Prepopulate list with a bunch of vertexes
+        for (int i = 0; i < NUM_RESOURCES / 2; i++) {
+            adjList.insertVertex((int)(Math.random() * NUM_RESOURCES));
+        }
+
         // Create and start threads
         ArrayList<Thread> threads = new ArrayList<Thread>(NUM_THREADS);
         for (int i = 0; i < NUM_THREADS; i++) {
@@ -40,7 +47,8 @@ public class LockTest {
             }
         }
 
-        adjList.print();
+        //adjList.print();
+        System.out.println(adjList.size());
     }
 }
 
@@ -57,20 +65,43 @@ class LockThread implements Runnable {
         this.numResources = this.resourceAlloc.lock.buffer.length;
     }
 
+    boolean validate(ArrayList<Pair> pairs) {
+        // todo
+        return false;
+    }
+
     @Override
     public void run() {
         for (int i = 0; i < numIterations; i++) {
-            Vector<Integer> resources = new Vector<>(10);
+            Vector<Integer> resources = new Vector<>(7);
+            ArrayList<Pair> pairs = new ArrayList<Pair>();
             // For each iteration, we need to generate a random list of resources to do operations on
-            for (int j = 0; j < 3; ) {
-                int randomResource = (int)(Math.random() * numResources);
-                resources.add(randomResource);
+//            for (int j = 0; j < 3; ) {
+//                int randomVal = (int)(Math.random() * Integer.MAX_VALUE);
+
+            // get random value
+            int rand = (int)(Math.random() * numResources);
+            // see if it's in list
+            Pair pair = adjList.getNodeAndIndex(rand);
+            // if it isn't, add index to resources vector and Pair to our pairs list
+            if (pair != null) {
+                resources.add((Integer) pair.getValue());
+                pairs.add(pair);
+            } else {
+                continue;
             }
+
+
+
+
             // Create lockable object
             MRLockable lockable = resourceAlloc.createLockable(resources);
             // Lock
             lockable.lock();
-            adjList.insertVertex(resources.get(0));
+            if (!validate(pairs)) {
+                continue;
+            }
+            adjList.deleteVertex(resources.get(0));
 //            adjList.insertVertex(resources.get(1));
 //            adjList.insertVertex(resources.get(2));
 //            adjList.insertEdge(resources.get(3), resources.get(4));

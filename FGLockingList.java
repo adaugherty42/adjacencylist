@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -61,6 +63,16 @@ public class FGLockingList<T>{
 
     public Node<T> getNode(int ind){
         return list.get(ind);
+    }
+
+    public Pair<Node<T>, Integer> getNodeAndIndex(T val) {
+        for (int i = 0; i < list.size(); i++) {
+            Node<T> node = list.get(i);
+            if (node.getValue() == val) {
+                return new Pair(node, i);
+            }
+        }
+        return null;
     }
 
     public boolean remove(T val){
