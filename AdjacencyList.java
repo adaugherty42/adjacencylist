@@ -3,13 +3,13 @@ import java.util.Iterator;
 
 public class AdjacencyList<T> {
     // technically the correct plural is "vertices" but that looks confusing!
-    private ArrayList<ArrayList<T>> vertexes;
+    private FGLockingList<T> vertexes;
 
     public AdjacencyList() {
-        this.vertexes = new ArrayList<>();
+        this.vertexes = new FGLockingList<>();
     }
 
-    public AdjacencyList(ArrayList<ArrayList<T>> vertexes) {
+    public AdjacencyList(FGLockingList<T> vertexes) {
         this.vertexes = vertexes;
     }
 
@@ -17,9 +17,7 @@ public class AdjacencyList<T> {
         if (find(val)) {
             return false;
         } else {
-            ArrayList<T> vertex = new ArrayList<T>();
-            vertex.add(val);
-            vertexes.add(vertex);
+            vertexes.add(val);
             return true;
         }
     }
@@ -43,8 +41,8 @@ public class AdjacencyList<T> {
         if (i == -1 || j == -1) {
             return false;
         } else {
-            ArrayList<T> vertexFrom = vertexes.get(i);
-            ArrayList<T> vertexTo = vertexes.get(j);
+            ArrayList<T> vertexFrom = vertexes.getNode(i).edges;
+            ArrayList<T> vertexTo = vertexes.getNode(j).edges;
             // only add edge if it doesn't already exist
             if (vertexFrom.contains(to) || vertexTo.contains(from)) {
                 return false;
@@ -63,8 +61,8 @@ public class AdjacencyList<T> {
         if (i == -1 || j == -1) {
             return false;
         } else {
-            ArrayList<T> vertexFrom = vertexes.get(i);
-            ArrayList<T> vertexTo = vertexes.get(j);
+            ArrayList<T> vertexFrom = vertexes.getNode(i).edges;
+            ArrayList<T> vertexTo = vertexes.getNode(j).edges;
             // can only delete an edge if it exists
             return vertexFrom.remove(to) && vertexTo.remove(from);
         }
@@ -76,11 +74,11 @@ public class AdjacencyList<T> {
 
     // helper method to delete all
     private void deleteAllEdges(T toDelete) {
-        for (ArrayList<T> vertex : vertexes) {
-            if (!vertex.get(0).equals(toDelete)) {
+        for (Node<T> vertex : vertexes.list) {
+            if (!vertex.edges.get(0).equals(toDelete)) {
                 // we don't need the return value here, it will just remove the edge if it
                 // exists
-                vertex.remove(toDelete);
+                vertex.edges.remove(toDelete);
             }
         }
     }
@@ -88,10 +86,10 @@ public class AdjacencyList<T> {
     private int indexOf(T val) {
         int i = -1;
         boolean match = false;
-        Iterator<ArrayList<T>> iterator = vertexes.iterator();
+        Iterator<Node<T>> iterator = vertexes.list.iterator();
         while (iterator.hasNext()) {
             i++;
-            if (iterator.next().get(0).equals(val)) {
+            if (iterator.next().edges.get(0).equals(val)) {
                 match = true;
                 break;
             }
@@ -104,12 +102,12 @@ public class AdjacencyList<T> {
             System.out.println("The adjacency list is currently empty.");
             return;
         }
-        for (ArrayList<T> vertex : vertexes) {
-            System.out.print(vertex.get(0));
-            if (vertex.size() > 1) {
+        for (Node<T> vertex : vertexes.list) {
+            System.out.print(vertex.edges.get(0));
+            if (vertex.edges.size() > 1) {
                 System.out.print(": [");
-                for (int i = 1; i < vertex.size(); i++) {
-                    System.out.print(i < vertex.size() - 1 ? vertex.get(i) + ", " : vertex.get(i));
+                for (int i = 1; i < vertex.edges.size(); i++) {
+                    System.out.print(i < vertex.edges.size() - 1 ? vertex.edges.get(i) + ", " : vertex.edges.get(i));
                 }
                 System.out.print("]");
             }
@@ -117,29 +115,29 @@ public class AdjacencyList<T> {
         }
     }
 
-    // public static void main(String[] args) {
-    // AdjacencyList list = new AdjacencyList();
-    // list.insertVertex(5);
-    // list.insertVertex(4);
-    // list.insertVertex(12);
-    // list.insertEdge(5, 4);
-    // list.insertEdge(5, 12);
-    // list.print();
-    // System.out.println();
-    // list.deleteEdge(5, 4);
-    // list.insertVertex(6);
-    // list.insertEdge(6, 4);
-    // list.print();
-    // System.out.println();
-    // list.deleteVertex(12);
-    // list.print();
-    // System.out.println();
-    // list.deleteVertex(4);
-    // list.print();
-    // System.out.println();
-    // list.deleteVertex(5);
-    // list.insertEdge(5, 3);
-    // list.deleteVertex(3);
-    // list.print();
-    // }
+     public static void main(String[] args) {
+         AdjacencyList list = new AdjacencyList();
+         list.insertVertex(5);
+         list.insertVertex(4);
+         list.insertVertex(12);
+         list.insertEdge(5, 4);
+         list.insertEdge(5, 12);
+         list.print();
+         System.out.println();
+         list.deleteEdge(5, 4);
+         list.insertVertex(6);
+         list.insertEdge(6, 4);
+         list.print();
+         System.out.println();
+         list.deleteVertex(12);
+         list.print();
+         System.out.println();
+         list.deleteVertex(4);
+         list.print();
+         System.out.println();
+         list.deleteVertex(5);
+         list.insertEdge(5, 3);
+         list.deleteVertex(3);
+         list.print();
+     }
 }

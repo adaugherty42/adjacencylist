@@ -1,11 +1,11 @@
 import java.util.ArrayList;
-// import java.util.BitSet;
+import java.util.BitSet;
 import java.util.Vector;
 
 public class LockTest {
-    static int NUM_THREADS = 1;
+    static int NUM_THREADS = 4;
     static int NUM_RESOURCES = 32;
-    static int NUM_ITERATIONS = 10;
+    static int NUM_ITERATIONS = 15;
 
     public static void main(String[] args) {
         // Grab args if they exist
@@ -21,8 +21,7 @@ public class LockTest {
 
         AdjacencyList<Integer> adjList = new AdjacencyList<>();
         MRLock lock = new MRLock();
-        // This ResourceAllocator will be passed to the spawned threads, which will use
-        // it to
+        // This ResourceAllocator will be passed to the spawned threads, which will use it to
         // create Lockable objects for their requests.
         ResourceAllocator resourceAlloc = new ResourceAllocator(lock, NUM_RESOURCES);
 
@@ -62,10 +61,9 @@ class LockThread implements Runnable {
     public void run() {
         for (int i = 0; i < numIterations; i++) {
             Vector<Integer> resources = new Vector<>(10);
-            // For each iteration, we need to generate a random list of resources to do
-            // operations on
-            for (int j = 0; j < 10; j++) {
-                int randomResource = (int) (Math.random() * numResources);
+            // For each iteration, we need to generate a random list of resources to do operations on
+            for (int j = 0; j < 3; ) {
+                int randomResource = (int)(Math.random() * numResources);
                 resources.add(randomResource);
             }
             // Create lockable object
@@ -73,12 +71,12 @@ class LockThread implements Runnable {
             // Lock
             lockable.lock();
             adjList.insertVertex(resources.get(0));
-            adjList.insertVertex(resources.get(1));
-            adjList.insertVertex(resources.get(2));
-            adjList.insertEdge(resources.get(3), resources.get(4));
-            adjList.insertEdge(resources.get(5), resources.get(6));
-            adjList.deleteEdge(resources.get(7), resources.get(8));
-            adjList.deleteVertex(resources.get(9));
+//            adjList.insertVertex(resources.get(1));
+//            adjList.insertVertex(resources.get(2));
+//            adjList.insertEdge(resources.get(3), resources.get(4));
+//            adjList.insertEdge(resources.get(5), resources.get(6));
+//            adjList.deleteEdge(resources.get(7), resources.get(8));
+//            adjList.deleteVertex(resources.get(9));
             lockable.unlock();
         }
     }
