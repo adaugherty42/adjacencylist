@@ -111,7 +111,6 @@ public class AdjacencyList<T> {
             return;
         }
         for (Node<T> vertex : vertexes.list) {
-            System.out.print(vertex.edges.get(0));
             if (vertex.edges.size() > 1) {
                 System.out.print(": [");
                 for (int i = 1; i < vertex.edges.size(); i++) {

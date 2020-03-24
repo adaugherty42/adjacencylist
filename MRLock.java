@@ -34,12 +34,12 @@ public class MRLock {
         Cell c;
         int pos;
 
+        // enqueue our request
         for (;;) {
             pos = this.tail.get();
             c = this.buffer[pos & this.mask];
             Integer seq = c.seq.get();
             int diff = seq - pos;
-
             if (diff == 0) {
                 if (this.tail.compareAndSet(pos, pos + 1)) {
                     break;
@@ -50,12 +50,15 @@ public class MRLock {
         c.bits = r;
         c.seq.set(pos + 1);
 
+        // spin while conflicts exist
         int spin_pos = this.head.get();
         while (spin_pos != pos) {
-            BitSet currBitset = (BitSet)this.buffer[spin_pos & this.mask].bits.clone();
-            currBitset.and(r);
+            BitSet conflictBitset = (BitSet)this.buffer[spin_pos & this.mask].bits.clone();
+            conflictBitset.and(r);
+            System.out.println((pos - this.buffer[spin_pos & this.mask].seq.get() > this.mask) + " " + !(conflictBitset.cardinality() > 0)
+                + " " + (pos - this.buffer[spin_pos & this.mask].seq.get()) + " " + this.mask);
             if (pos - this.buffer[spin_pos & this.mask].seq.get() > this.mask ||
-                        !(currBitset.cardinality() > 0)) {
+                        !(conflictBitset.cardinality() > 0)) {
                 spin_pos++;
             }
         }

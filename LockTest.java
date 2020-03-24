@@ -1,4 +1,4 @@
-import javafx.util.Pair;
+
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -7,8 +7,8 @@ import java.util.Vector;
 
 public class LockTest {
     static int NUM_THREADS = 1;
-    static int NUM_RESOURCES = 32;
-    static int NUM_ITERATIONS = 500;
+    static int NUM_RESOURCES = 2000;
+    static int NUM_ITERATIONS = 30;
 
     public static void main(String[] args) {
         // Grab args if they exist
@@ -66,48 +66,63 @@ class LockThread implements Runnable {
         this.numResources = this.resourceAlloc.lock.buffer.length;
     }
 
-    boolean validate(ArrayList<Pair> pairs) {
-        // todo
-        return false;
-    }
-
     @Override
     public void run() {
         for (int i = 0; i < numIterations; i++) {
             Vector<Integer> resources = new Vector<>(7);
             ArrayList<Node> nodes = new ArrayList<Node>();
             // For each iteration, we need to generate a random list of resources to do operations on
-//            for (int j = 0; j < 3; ) {
-//                int randomVal = (int)(Math.random() * Integer.MAX_VALUE);
+            while(resources.size()<3) {
+                int randomVal = (int)(Math.random() * Integer.MAX_VALUE);
 
-            // get random value
-            int rand = (int)(Math.random() * numResources);
-            // see if it's in list
-            Node node = adjList.getNode(rand);
-            // if it isn't, add index to resources vector and Pair to our pairs list
-            if (node != null) {
-                resources.add((Integer)node.getValue());
-                nodes.add(node);
-            } else {
-                continue;
+                // get random value
+                int rand = (int)(Math.random() * numResources);
+
+                // see if it's in list
+                Node node = adjList.getNode(rand);
+
+                // if it isn't, add index to resources vector and Pair to our pairs list
+                if (node != null) {
+                    resources.add((Integer)node.getValue());
+                    nodes.add(node);
+                } else {
+                    continue;
+                }
+
             }
 
 
-            if (resources.size() > 0) {
-                // Create lockable object
-                MRLockable lockable = resourceAlloc.createLockable(resources);
-                // Lock
-                lockable.lock();
-                // Do stuff
-                adjList.deleteVertex(resources.get(0));
-//            adjList.insertVertex(resources.get(1));
-//            adjList.insertVertex(resources.get(2));
-//            adjList.insertEdge(resources.get(3), resources.get(4));
-//            adjList.insertEdge(resources.get(5), resources.get(6));
-//            adjList.deleteEdge(resources.get(7), resources.get(8));
-//            adjList.deleteVertex(resources.get(9));
-                lockable.unlock();
+
+            // Create lockable object
+            MRLockable lockable = resourceAlloc.createLockable(resources);
+            // Lock
+            lockable.lock();
+
+            // Do stuff
+            int randOp = (int)(Math.random()*3);
+            switch(randOp)
+            {
+                case 0: // some vertex operations
+                    adjList.insertVertex(resources.get(1));
+                    adjList.deleteVertex(resources.get(0));
+                    adjList.find(resources.get(2));
+                    break;
+
+                case 1: // some edge operations
+                    adjList.insertEdge(resources.get(1), resources.get(2));
+                    adjList.insertEdge(resources.get(0), resources.get(1));
+                    adjList.deleteEdge(resources.get(1), resources.get(2));
+                    break;
+
+                case 2: // both
+                    adjList.insertEdge(resources.get(1), resources.get(2));
+                    adjList.insertVertex(resources.get(0));
+                    adjList.deleteEdge(resources.get(0), resources.get(1));
+                    break;
+
             }
+            lockable.unlock();
         }
+
     }
 }

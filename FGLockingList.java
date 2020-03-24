@@ -66,6 +66,7 @@ public class FGLockingList<T>{
     }
 
     public Node<T> getNode(T val) {
+        System.out.println(this.list.size());
         for (int i = 0; i < this.list.size(); i++) {
             Node<T> node = this.list.get(i);
             if (node.getValue().equals(val)) {
