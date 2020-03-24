@@ -37,7 +37,7 @@ public class MRLock {
         for (;;) {
             pos = this.tail.get();
             c = this.buffer[pos & this.mask];
-            int seq = c.seq.get();
+            Integer seq = c.seq.get();
             int diff = seq - pos;
 
             if (diff == 0) {
@@ -52,7 +52,7 @@ public class MRLock {
 
         int spin_pos = this.head.get();
         while (spin_pos != pos) {
-            BitSet currBitset = (BitSet)this.buffer[spin_pos & this.mask].bits;
+            BitSet currBitset = (BitSet)this.buffer[spin_pos & this.mask].bits.clone();
             currBitset.and(r);
             if (pos - this.buffer[spin_pos & this.mask].seq.get() > this.mask ||
                         !(currBitset.cardinality() > 0)) {
@@ -73,7 +73,7 @@ public class MRLock {
 
             if (diff == 0) {
                 if (this.head.compareAndSet(pos, pos + 1)) {
-                    for (int i = 0; i < c.bits.length(); i++) {
+                    for (int i = 0; i < this.buffer.length; i++) {
                         c.bits.set(i);
                     }
                     c.seq.set(pos + this.mask + 1);

@@ -7,8 +7,8 @@ import java.util.Vector;
 
 public class LockTest {
     static int NUM_THREADS = 1;
-    static int NUM_RESOURCES = 2000;
-    static int NUM_ITERATIONS = 30;
+    static int NUM_RESOURCES = 32;
+    static int NUM_ITERATIONS = 500;
 
     public static void main(String[] args) {
         // Grab args if they exist
@@ -93,23 +93,21 @@ class LockThread implements Runnable {
             }
 
 
-
-
-            // Create lockable object
-            MRLockable lockable = resourceAlloc.createLockable(resources);
-            // Lock
-            lockable.lock();
-            System.out.println("Blah1");
-            // Do stuff
-            adjList.deleteVertex(resources.get(0));
+            if (resources.size() > 0) {
+                // Create lockable object
+                MRLockable lockable = resourceAlloc.createLockable(resources);
+                // Lock
+                lockable.lock();
+                // Do stuff
+                adjList.deleteVertex(resources.get(0));
 //            adjList.insertVertex(resources.get(1));
 //            adjList.insertVertex(resources.get(2));
 //            adjList.insertEdge(resources.get(3), resources.get(4));
 //            adjList.insertEdge(resources.get(5), resources.get(6));
 //            adjList.deleteEdge(resources.get(7), resources.get(8));
 //            adjList.deleteVertex(resources.get(9));
-            lockable.unlock();
-            System.out.println("Blah2");
+                lockable.unlock();
+            }
         }
     }
 }
