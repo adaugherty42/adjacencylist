@@ -55,9 +55,7 @@ public class MRLock {
         while (spin_pos != pos) {
             BitSet conflictBitset = (BitSet)this.buffer[spin_pos & this.mask].bits.clone();
             conflictBitset.and(r);
-            System.out.println((pos - this.buffer[spin_pos & this.mask].seq.get() > this.mask) + " " + !(conflictBitset.cardinality() > 0)
-                + " " + (pos - this.buffer[spin_pos & this.mask].seq.get()) + " " + this.mask);
-            if (pos - this.buffer[spin_pos & this.mask].seq.get() > this.mask ||
+            if (pos + this.buffer[spin_pos & this.mask].seq.get() > this.mask ||
                         !(conflictBitset.cardinality() > 0)) {
                 spin_pos++;
             }

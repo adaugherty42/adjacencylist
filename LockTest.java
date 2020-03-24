@@ -6,8 +6,8 @@ import java.util.BitSet;
 import java.util.Vector;
 
 public class LockTest {
-    static int NUM_THREADS = 1;
-    static int NUM_RESOURCES = 2000;
+    static int NUM_THREADS = 2;
+    static int NUM_RESOURCES = 64;
     static int NUM_ITERATIONS = 30;
 
     public static void main(String[] args) {
@@ -48,8 +48,7 @@ public class LockTest {
             }
         }
 
-        //adjList.print();
-        System.out.println(adjList.size());
+        adjList.print();
     }
 }
 
