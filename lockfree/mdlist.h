@@ -21,7 +21,11 @@ class MDList
 
 public:
     std::vector<uint32_t> keyToCoord(uint32_t key);
+    ReturnValue FinishDelete(MDListNode *n, uint32_t, NodeDesc *nDesc)
+    {
+    }
 
     MDListNode *head;
     uint32_t basis;
+    MDListNode list[];
 };
