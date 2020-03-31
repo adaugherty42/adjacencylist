@@ -12,18 +12,30 @@ struct MDListNode
 {
     uint32_t key;
     uint32_t k[DIM];
-    Node *child[DIM];
-    void *val;
+    MDListNode *child[DIM];
+    AdoptDesc *aDesc;
+    NodeDesc *info; // paper just uses this without declaring or explaining it.....
+};
+
+struct AdoptDesc
+{
+    MDListNode *curr;
+    uint32_t dp;
+    uint32_t dc;
 };
 
 class MDList
 {
 
 public:
-    std::vector<uint32_t> keyToCoord(uint32_t key);
-    ReturnValue FinishDelete(MDListNode *n, uint32_t, NodeDesc *nDesc)
-    {
-    }
+    int *KeyToCoord(uint32_t key);
+    void LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &currDim, uint32_t &predDim, int k[]);
+    void FinishInserting(MDListNode *n, AdoptDesc *ad);
+    ReturnValue FinishDelete(MDListNode *n, uint32_t, NodeDesc *nDesc);
+    bool Find(uint32_t key);
+    bool Delete(MDListNode *&curr, MDListNode *&pred, uint32_t dc, uint32_t dp);
+    bool Insert();
+    void FillNewNode(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp);
 
     MDListNode *head;
     uint32_t basis;
