@@ -1,5 +1,4 @@
-#include "mdlist.h"
-#include "adjacencylist.h"
+#include "structs.h"
 #include <cmath>
 
 int *MDList::KeyToCoord(uint32_t key)

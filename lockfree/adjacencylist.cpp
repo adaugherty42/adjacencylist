@@ -1,8 +1,28 @@
-#include "adjacencylist.h"
-#include "mdlist.h"
+#include "structs.h"
+#include <stack>
 #include <unordered_set>
 
 thread_local HelpStack helpStack;
+std::stack<Node*> nodeAlloc;
+std::stack<Desc*> descAlloc;
+std::stack<NodeDesc*> nDescAlloc;
+std::stack<MDList*> mdlistAlloc;
+std::stack<MDListNode*> mdlNodeAlloc;
+std::stack<AdoptDesc*> aDesc;
+
+
+void AdjacencyList::init(int numElem)
+{
+    for (int i = 0; i<numElem; i++)
+    {
+        nodeAlloc.push(new Node());
+        descAlloc.push(new Desc());
+        nDescAlloc.push(new NodeDesc());
+        mdlistAlloc.push(new MDList());
+        mdlNodeAlloc.push(new MDListNode());
+        aDesc.push(new AdoptDesc());
+    }
+}
 
 void AdjacencyList::ExecuteOperations(NodeDesc *nDesc, uint32_t opid)
 {

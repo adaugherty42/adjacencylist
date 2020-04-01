@@ -16,6 +16,9 @@ struct MDListNode
     MDListNode *child[DIM];
     AdoptDesc *aDesc;
     NodeDesc *info; // paper just uses this without declaring or explaining it.....
+
+    MDListNode();
+    void set(uint32_t k, AdoptDesc* a, NodeDesc* i);
 };
 
 struct AdoptDesc
@@ -23,6 +26,9 @@ struct AdoptDesc
     MDListNode *curr;
     uint32_t dp;
     uint32_t dc;
+    
+    AdoptDesc();
+    void set(MDListNode *cur, uint32_t p, uint32_t c);
 };
 
 class MDList
@@ -42,4 +48,7 @@ public:
     Node *headVertex;
     uint32_t basis;
     MDListNode list[];
+
+    MDList();
+    void set(MDListNode* h, Node* hv, uint32_t b);
 };

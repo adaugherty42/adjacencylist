@@ -112,14 +112,18 @@ struct Desc
     TxStatus status;
     int currentOp;
     Operation ops[];
+
+    Desc();
+    void set(uint32_t s, TxStatus ts, int c);
 };
 
 struct NodeDesc
 {
     Desc *desc;
     uint32_t opid;
-    NodeDesc(Desc *desc, uint32_t opid)
-        : desc(desc), opid(opid) {}
+
+    NodeDesc();
+    void set(Desc *d, uint32_t opn);
 };
 
 struct Node
@@ -129,13 +133,14 @@ struct Node
     MDList *list;
     Node *next;
 
-    Node(NodeDesc *info, uint32_t key, MDList *list, Node *next)
-        : info(info), key(key), list(list), next(next) {}
+    Node();
+    void set(NodeDesc* i, uint32_t k, MDList* l, Node* n);
 };
 
 class AdjacencyList
 {
 public:
+    void init(int numElem);
     void InitializeVertices();
     void InitializeLists();
     Desc *AssignDesc(uint32_t size);
