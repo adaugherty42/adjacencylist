@@ -97,6 +97,7 @@ public:
     enum SuccessValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
     bool DeleteVertex(uint32_t vertex, NodeDesc *nDesc);
     Node *FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid);
+    void LocatePred(Node *&pred, Node *&curr, uint32_t vertex);
     // InsertEdge
     // DeleteEdge
     // DeleteVertex

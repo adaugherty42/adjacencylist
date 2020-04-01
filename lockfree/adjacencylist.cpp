@@ -65,25 +65,27 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
         return Retry;
 }
 
-// vertex = Node key i think....
 bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
 {
     Node *curr = head;
     Node *pred = NULL;
+    SuccessValue ret;
     while (true)
     {
-        // have to define LocatePred
-        // LocatePred(pred, curr, vertex);
+        LocatePred(pred, curr, vertex);
         if (IsNodePresent(curr, vertex))
         {
-            SuccessValue ret = UpdateInfo(curr, nDesc, true);
+            ret = UpdateInfo(curr, nDesc, true);
             if (ret != NULL)
             {
                 MDList *listPtr = curr->list;
                 MDList list = *listPtr;
-                // finish delete Node vs MDListNode is confusing
                 ret = list.FinishDelete(list.head, 0, nDesc);
             }
+            if (ret)
+                return true;
+            else
+                return false;
         }
     }
 }
@@ -92,7 +94,7 @@ void ExecuteOps(Desc *desc, uint32_t opid)
 {
 }
 
-void LocatePred(Node *&pred, Node *&curr, uint32_t vertex)
+void AdjacencyList::LocatePred(Node *&pred, Node *&curr, uint32_t vertex)
 {
     while (curr->key < vertex)
     {
