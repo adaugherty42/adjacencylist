@@ -149,5 +149,5 @@ public:
     bool DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
     Node *FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid);
     void LocatePred(Node *&pred, Node *&curr, uint32_t vertex);
-    void DeleteTransaction(Node *n);
+    void DeleteTransaction(NodeDesc *n);
 };
