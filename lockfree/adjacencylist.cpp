@@ -1,26 +1,18 @@
 #include "structs.h"
-#include <stack>
 #include <unordered_set>
 
 thread_local HelpStack helpStack;
-std::stack<Node*> nodeAlloc;
-std::stack<Desc*> descAlloc;
-std::stack<NodeDesc*> nDescAlloc;
-std::stack<MDList*> mdlistAlloc;
-std::stack<MDListNode*> mdlNodeAlloc;
-std::stack<AdoptDesc*> aDesc;
-
 
 void AdjacencyList::init(int numElem)
 {
-    for (int i = 0; i<numElem; i++)
+    for (int i = 0; i < numElem; i++)
     {
         nodeAlloc.push(new Node());
         descAlloc.push(new Desc());
         nDescAlloc.push(new NodeDesc());
         mdlistAlloc.push(new MDList());
         mdlNodeAlloc.push(new MDListNode());
-        aDesc.push(new AdoptDesc());
+        aDescAlloc.push(new AdoptDesc());
     }
 }
 
@@ -44,7 +36,10 @@ void AdjacencyList::ExecuteOperations(NodeDesc *nDesc, uint32_t opid)
     while (nDesc->desc->status == ACTIVE && ret != Fail && opid < nDesc->desc->size)
     {
         Operation op = nDesc->desc->ops[opid];
-        NodeDesc *nd = new NodeDesc(nDesc->desc, opid);
+        NodeDesc *nd = nDescAlloc.top();
+        nDescAlloc.pop();
+        nd->set(nDesc->desc, opid);
+
         switch (op.type)
         {
         case InsertVertexOp:
@@ -157,7 +152,8 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
 bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
 {
     Node *curr = head;
-    Node *pred = NULL;
+    Node *pred = nodeAlloc.top();
+    nodeAlloc.pop();
     SuccessValue ret;
     while (true)
     {
@@ -187,7 +183,8 @@ SuccessValue AdjacencyList::FinishDelete(MDListNode *n, uint32_t dc, NodeDesc *n
 bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
 {
     Node *curr = head;
-    Node *pred = NULL;
+    Node *pred = nodeAlloc.top();
+    nodeAlloc.pop();
     SuccessValue ret;
     while (true)
     {
@@ -197,9 +194,11 @@ bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
             ret = UpdateInfo(curr, nDesc, true);
             if (ret != NULL)
             {
-                MDList *mdlist = new MDList();
-                //In this case, it al- locates a new vertex and inserts it into the list using Compare-And-Swap to change pred.next to curr.
-                Node *toInsert = new Node(nDesc, vertex, mdlist, pred->next);
+                MDList *mdlist = mdlistAlloc.top();
+                mdlistAlloc.pop();
+                Node *toInsert = nodeAlloc.top();
+                nodeAlloc.pop();
+                toInsert->set(nDesc, vertex, mdlist, pred->next);
                 if (__atomic_compare_exchange_n(&pred->next, curr, toInsert, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
                     return true;
                 else
@@ -254,11 +253,13 @@ bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
         {
             return false;
         }
-        Node *pred = NULL; // use allocator when it's done
+        Node *pred = nodeAlloc.top();
+        nodeAlloc.pop();
         Node *currEdge = currVertex->list->headVertex;
         while (true)
         {
-            MDListNode *pred = NULL; // use allocator
+            MDListNode *pred = mdlNodeAlloc.top();
+            mdlNodeAlloc.pop();
             // MDListNode currMdNode = MDListNode (currEdge);
             // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
             if (IsNodePresent(currEdge, edge))
@@ -286,11 +287,13 @@ bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
         {
             return false;
         }
-        Node *pred = NULL; // allocate
+        Node *pred = nodeAlloc.top();
+        nodeAlloc.pop();
         Node *currEdge = currVertex->list->headVertex;
         while (true)
         {
-            MDListNode *pred = NULL; //allocate
+            MDListNode *pred = mdlNodeAlloc.top();
+            mdlNodeAlloc.pop();
             // MDListNode currMdNode = MDListNode (currEdge); // allocate
             // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
             if (IsNodePresent(currEdge, edge))

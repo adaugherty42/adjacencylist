@@ -1,5 +1,13 @@
 #include "adjacencylist.h"
 #include "mdlist.h"
+#include <stack>
+
+std::stack<Node *> nodeAlloc;
+std::stack<Desc *> descAlloc;
+std::stack<NodeDesc *> nDescAlloc;
+std::stack<MDList *> mdlistAlloc;
+std::stack<MDListNode *> mdlNodeAlloc;
+std::stack<AdoptDesc *> aDescAlloc;
 
 MDListNode::MDListNode()
 {
@@ -8,7 +16,7 @@ MDListNode::MDListNode()
     info = new NodeDesc;
 }
 
-void MDListNode::set(uint32_t k, AdoptDesc* a, NodeDesc* i)
+void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
 {
     key = k;
     aDesc = a;
@@ -45,7 +53,7 @@ void Desc::set(uint32_t s, TxStatus ts, int c)
 NodeDesc::NodeDesc()
 {
     desc = new Desc();
-    opid = -1; 
+    opid = -1;
 }
 
 void NodeDesc::set(Desc *d, uint32_t opn)
@@ -61,7 +69,7 @@ MDList::MDList()
     basis = -1;
 }
 
-void MDList::set(MDListNode* h, Node* hv, uint32_t b)
+void MDList::set(MDListNode *h, Node *hv, uint32_t b)
 {
     head = h;
     headVertex = hv;
@@ -76,13 +84,10 @@ Node::Node()
     next = new Node();
 }
 
-void Node::set(NodeDesc* i, uint32_t k, MDList* l, Node* n)
+void Node::set(NodeDesc *i, uint32_t k, MDList *l, Node *n)
 {
     info = i;
     key = k;
     list = l;
     next = n;
 }
-
-
-

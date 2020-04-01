@@ -50,7 +50,8 @@ void MDList::LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint
 bool MDList::Find(uint32_t key)
 {
     MDListNode *curr = head;
-    MDListNode *pred = NULL;
+    MDListNode *pred = mdlNodeAlloc.top();
+    mdlNodeAlloc.pop();
     uint32_t dc, dp = 0;
     LocatePred(pred, curr, dc, dp, KeyToCoord(key));
     return dc == DIM;
@@ -137,14 +138,11 @@ void MDList::FinishInserting(MDListNode *n, AdoptDesc *ad)
 // separates them so we will too.
 void MDList::FillNewNode(MDListNode *&node, MDListNode *&curr, MDListNode *&prev, uint32_t &dc, uint32_t &dp)
 {
-    AdoptDesc *ad = NULL;
+    AdoptDesc *ad = aDescAlloc.top();
+    aDescAlloc.pop();
     if (dp != dc)
     {
-        // Constructor would be more concise here
-        ad = new AdoptDesc();
-        ad->curr = curr;
-        ad->dp = dp;
-        ad->dc = dc;
+        ad->set(curr, dp, dc);
     }
     for (int i = 0; i <= dp; i++)
     {
