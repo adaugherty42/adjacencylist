@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include "mdlist.h"
 #include <unordered_set>
+#include "mdlist.fwd.h"
+#include "adjacencylist.fwd.h"
 
 #define F_adp 0x01
 #define F_del 0x02
@@ -89,6 +91,8 @@ enum OpType
 };
 
 // Needed for UpdateInfo
+// can't put in header file bc enum
+// hey now
 enum SuccessValue
 {
     Fail,
