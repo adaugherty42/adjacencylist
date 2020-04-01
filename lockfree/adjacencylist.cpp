@@ -149,7 +149,7 @@ bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
             {
                 MDList *listPtr = curr->list;
                 MDList list = *listPtr;
-                ret = list.FinishDelete(list.head, 0, nDesc);
+                ret = FinishDelete(list.head, 0, nDesc);
             }
             if (ret)
                 return true;
@@ -157,6 +157,11 @@ bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
                 return false;
         }
     }
+}
+
+SuccessValue AdjacencyList::FinishDelete(MDListNode *n, uint32_t dc, NodeDesc *nDesc)
+{
+    return Fail;
 }
 
 bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)

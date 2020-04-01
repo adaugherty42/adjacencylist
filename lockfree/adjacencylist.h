@@ -157,4 +157,5 @@ public:
     Node *FindVertex(uint32_t vertex, NodeDesc *nDesc);
     void LocatePred(Node *&pred, Node *&curr, uint32_t vertex);
     void MarkForDelete(Desc *d, std::unordered_set<NodeDesc *> toDelete);
+    SuccessValue FinishDelete(MDListNode *n, uint32_t dc, NodeDesc *nDesc);
 };
