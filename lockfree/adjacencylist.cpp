@@ -4,42 +4,43 @@
 
 thread_local HelpStack helpStack;
 
-void AdjacencyList::ExecuteOperations(Desc *desc, uint32_t opid)
+void AdjacencyList::ExecuteOperations(NodeDesc *nDesc, uint32_t opid)
 {
     SuccessValue ret = Success;
-    std::unordered_set<void *> toDelete;
+    std::unordered_set<NodeDesc *> toDelete;
 
     // if helpstack contains desc, CAS(&desc.flag, active, aborted); return
-    if (helpStack.Contains(desc))
+    if (helpStack.Contains(nDesc))
     {
         // Can't use __atomic_compare_exchange_n here because it expects a pointer for the second argument
         // and you can't point to an enum constant value, so we have to use this GCC-only monstrosity. Hilarious.
-        __sync_bool_compare_and_swap(&desc->status, ACTIVE, ABORTED);
+        __sync_bool_compare_and_swap(&nDesc->desc->status, ACTIVE, ABORTED);
         return;
     }
 
     // Goodbye livelock!
-    helpStack.Push(desc);
+    helpStack.Push(nDesc);
 
-    while (desc->status == ACTIVE && opid < desc->size)
+    while (nDesc->desc->status == ACTIVE && ret != Fail && opid < nDesc->desc->size)
     {
-        Operation op = desc->ops[opid];
+        Operation op = nDesc->desc->ops[opid];
+        NodeDesc *nd = new NodeDesc(nDesc->desc, opid);
         switch (op.type)
         {
         case InsertVertexOp:
-            // ret = InsertVertex();
+            ret = InsertVertex(op.key, nd) ? Success : Fail;
             break;
         case InsertEdgeOp:
             // ret = InsertEdge()...
             break;
         case DeleteVertexOp:
-            // ret = DeleteVertex()...
+            ret = DeleteVertex(op.key, nd) ? Success : Fail;
             break;
         case DeleteEdgeOp:
             // ret = DeleteEdge()...
             break;
         case FindOp:
-            // ret = Find()...
+            ret = FindVertex(op.key, nd) != NULL ? Success : Fail; // replace with find
             break;
         }
         opid++;
@@ -52,21 +53,21 @@ void AdjacencyList::ExecuteOperations(Desc *desc, uint32_t opid)
     if (ret == Success)
     {
         // All operations succeeded.
-        if (__sync_bool_compare_and_swap(&desc->status, ACTIVE, COMMITTED))
+        if (__sync_bool_compare_and_swap(&nDesc->desc->status, ACTIVE, COMMITTED))
         {
-            //MarkForDeletion(toDelete)
+            MarkForDelete(nDesc->desc, toDelete);
         }
     }
     else
     { // Some operation failed...transaction must abort
-        __sync_bool_compare_and_swap(&desc->status, ACTIVE, ABORTED);
+        __sync_bool_compare_and_swap(&nDesc->desc->status, ACTIVE, ABORTED);
     }
 }
 
-bool AdjacencyList::ExecuteTransaction(Desc *desc)
+bool AdjacencyList::ExecuteTransaction(NodeDesc *nDesc)
 {
     helpStack.Init();
-    ExecuteOperations(desc, 0);
+    ExecuteOperations(nDesc, 0);
 }
 
 bool AdjacencyList::IsNodePresent(Node *n, uint32_t key)
@@ -75,20 +76,20 @@ bool AdjacencyList::IsNodePresent(Node *n, uint32_t key)
 }
 
 // bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
-bool AdjacencyList::IsKeyPresent(NodeDesc *info)
+bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
 {
     Operation op = info->desc->ops[info->opid];
     OpType opType = op.type;
     TxStatus status = info->desc->status;
     switch (status)
     {
-    // case ACTIVE:
-    // {
-    //     if (info->desc == desc)
-    //         return (opType == FindOp || opType == InsertVertexOp || opType == InsertEdgeOp);
-    //     else
-    //         return (opType == FindOp || opType == DeleteVertexOp || opType == DeleteEdgeOp);
-    // }
+    case ACTIVE:
+    {
+        if (info->desc == desc)
+            return (opType == FindOp || opType == InsertVertexOp || opType == InsertEdgeOp);
+        else
+            return (opType == FindOp || opType == DeleteVertexOp || opType == DeleteEdgeOp);
+    }
     case COMMITTED:
         return (opType == FindOp || opType == InsertVertexOp || opType == InsertEdgeOp);
     case ABORTED:
@@ -109,11 +110,11 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
     {
         if (oldInfo->desc->ops[oldInfo->opid].type == DeleteVertexOp)
         {
-            ExecuteOperations(oldInfo->desc, oldInfo->opid);
+            ExecuteOperations(oldInfo, oldInfo->opid);
         }
         else
         {
-            ExecuteOperations(oldInfo->desc, (oldInfo->opid) + 1);
+            ExecuteOperations(oldInfo, (oldInfo->opid) + 1);
         }
     }
     else if (oldInfo->opid >= info->opid)
@@ -122,7 +123,7 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
     }
 
     // not sure if this has the right second argument
-    bool hasKey = IsKeyPresent(oldInfo);
+    bool hasKey = IsKeyPresent(oldInfo, info->desc);
     if ((!hasKey && wantKey) || (hasKey && !wantKey))
         return Fail;
     if (info->desc->status != ACTIVE)
@@ -192,7 +193,7 @@ void AdjacencyList::LocatePred(Node *&pred, Node *&curr, uint32_t vertex)
     }
 }
 
-Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid)
+Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc)
 {
     Node *curr = head;
     Node *pred = NULL;
@@ -204,9 +205,9 @@ Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid)
             NodeDesc *cDesc = curr->info;
             if (cDesc != nDesc)
             {
-                ExecuteOperations(cDesc->desc, cDesc->desc->currentOp + 1);
+                ExecuteOperations(cDesc, cDesc->desc->currentOp + 1);
             }
-            if (IsKeyPresent(cDesc))
+            if (IsKeyPresent(cDesc, nDesc->desc))
             {
                 if (nDesc->desc->status != ACTIVE)
                 {
@@ -219,20 +220,20 @@ Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid)
     }
 }
 
-bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[])
+bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t &currDim, uint32_t predDim, uint32_t k[])
 {
     while (true)
     {
-        Node *currVertex = FindVertex(vertex, nDesc, opid);
+        Node *currVertex = FindVertex(vertex, nDesc);
         if (currVertex == NULL)
         {
             return false;
         }
-        Node *pred = NULL;
+        Node *pred = NULL; // use allocator when it's done
         Node *currEdge = currVertex->list->headVertex;
         while (true)
         {
-            MDListNode *pred = NULL;
+            MDListNode *pred = NULL; // use allocator
             // MDListNode currMdNode = MDListNode (currEdge);
             // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
             if (IsNodePresent(currEdge, edge))
@@ -251,21 +252,21 @@ bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
     }
 }
 
-bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[])
+bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t &currDim, uint32_t predDim, uint32_t k[])
 {
     while (true)
     {
-        Node *currVertex = FindVertex(vertex, nDesc, opid);
+        Node *currVertex = FindVertex(vertex, nDesc);
         if (currVertex == NULL)
         {
             return false;
         }
-        Node *pred = NULL;
+        Node *pred = NULL; // allocate
         Node *currEdge = currVertex->list->headVertex;
         while (true)
         {
-            MDListNode *pred = NULL;
-            // MDListNode currMdNode = MDListNode (currEdge);
+            MDListNode *pred = NULL; //allocate
+            // MDListNode currMdNode = MDListNode (currEdge); // allocate
             // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
             if (IsNodePresent(currEdge, edge))
             {
@@ -279,6 +280,13 @@ bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
     }
 }
 
-void AdjacencyList::DeleteTransaction(NodeDesc *n)
+void AdjacencyList::MarkForDelete(Desc *d, std::unordered_set<NodeDesc *> toDelete)
 {
+    for (const auto &del : toDelete)
+    {
+        if (del == NULL)
+        {
+            continue;
+        }
+    }
 }

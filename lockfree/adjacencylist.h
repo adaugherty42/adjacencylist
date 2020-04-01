@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "mdlist.h"
+#include <unordered_set>
 
 #define F_adp 0x01
 #define F_del 0x02
@@ -26,23 +27,23 @@ class HelpStack
 {
 public:
     uint32_t top;
-    Desc **arr;
+    NodeDesc **arr;
 
 public:
     void Init()
     {
         top = -1;
-        arr = new Desc *[1000];
+        arr = new NodeDesc *[1000];
     }
-    Desc *Peek()
+    NodeDesc *Peek()
     {
         return arr[top];
     }
-    Desc *Pop()
+    NodeDesc *Pop()
     {
         return top > -1 ? arr[top--] : NULL;
     }
-    bool Push(Desc *desc)
+    bool Push(NodeDesc *nDesc)
     {
         if (top == 999)
         {
@@ -50,15 +51,15 @@ public:
         }
         else
         {
-            arr[++top] = desc;
+            arr[++top] = nDesc;
             return true;
         }
     }
-    bool Contains(Desc *desc)
+    bool Contains(NodeDesc *nDesc)
     {
         for (int i = 0; i < top; i++)
         {
-            if (arr[i] == desc)
+            if (arr[i] == nDesc)
             {
                 return true;
             }
@@ -90,8 +91,8 @@ enum OpType
 // Needed for UpdateInfo
 enum SuccessValue
 {
-    Success,
     Fail,
+    Success,
     Retry
 };
 
@@ -113,6 +114,8 @@ struct NodeDesc
 {
     Desc *desc;
     uint32_t opid;
+    NodeDesc(Desc *desc, uint32_t opid)
+        : desc(desc), opid(opid) {}
 };
 
 struct Node
@@ -132,22 +135,22 @@ public:
     void InitializeVertices();
     void InitializeLists();
     Desc *AssignDesc(uint32_t size);
-    bool ExecuteTransaction(Desc *desc);
-    void ExecuteOperations(Desc *desc, uint32_t opid);
+    bool ExecuteTransaction(NodeDesc *nDesc);
+    void ExecuteOperations(NodeDesc *nDesc, uint32_t opid);
     Node *head;
     Node *tail;
     int numThreads;
 
     bool IsNodePresent(Node *n, uint32_t key);
     // bool IsKeyPresent(NodeDesc *info, Desc *desc);
-    bool IsKeyPresent(NodeDesc *info);
+    bool IsKeyPresent(NodeDesc *info, Desc *desc);
     enum SuccessValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
     bool DeleteVertex(uint32_t vertex, NodeDesc *nDesc);
     bool InsertVertex(uint32_t vertex, NodeDesc *nDesc);
     // bool InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid);
-    bool InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
-    bool DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
-    Node *FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid);
+    bool InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
+    bool DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
+    Node *FindVertex(uint32_t vertex, NodeDesc *nDesc);
     void LocatePred(Node *&pred, Node *&curr, uint32_t vertex);
-    void DeleteTransaction(NodeDesc *n);
+    void MarkForDelete(Desc *d, std::unordered_set<NodeDesc *> toDelete);
 };
