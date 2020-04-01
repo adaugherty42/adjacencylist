@@ -41,6 +41,7 @@ enum OpType
     FindOp
 };
 
+// Needed for UpdateInfo
 enum ReturnValue
 {
     Success,
@@ -94,7 +95,7 @@ public:
     bool IsKeyPresent(NodeDesc *info, Desc *desc);
     enum ReturnValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
     bool DeleteVertex(uint32_t vertex, NodeDesc *nDesc);
-    // Find
+    Node *FindVertex();
     // InsertEdge
     // DeleteEdge
     // DeleteVertex

@@ -83,8 +83,33 @@ bool MDList::Delete(MDListNode *&curr, MDListNode *&pred, uint32_t dc, uint32_t 
     return false;
 }
 
-bool MDList::Insert()
+// Some of the initial work is handled by the method that calls this one, so we effectively start on
+// line 13 of MDList algorithm 5
+bool MDList::Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp)
 {
+    AdoptDesc *ad = curr != NULL ? curr->aDesc : NULL;
+    if (ad != NULL && dp != dc)
+    {
+        FinishInserting(curr, ad);
+    }
+    if (IsMarked(pred->child[dp], F_del))
+    {
+        curr = (MDListNode *)SetMark(curr, F_del);
+        if (dc == DIM - 1)
+        {
+            dc = DIM;
+        }
+    }
+    FillNewNode(node, curr, pred, dc, dp);
+    if (__atomic_compare_exchange_n(&pred->child[dp], curr, node, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+    {
+        if (ad != NULL)
+        {
+            FinishInserting(node, ad);
+        }
+        return true;
+    }
+    return false;
 }
 
 void MDList::FinishInserting(MDListNode *n, AdoptDesc *ad)
