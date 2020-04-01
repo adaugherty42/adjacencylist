@@ -1,5 +1,73 @@
 #include "adjacencylist.h"
 #include "mdlist.h"
+#include <unordered_set>
+
+thread_local HelpStack helpStack;
+
+void AdjacencyList::ExecuteOperations(Desc *desc, uint32_t opid)
+{
+    SuccessValue ret = Success;
+    std::unordered_set<void *> toDelete;
+
+    // if helpstack contains desc, CAS(&desc.flag, active, aborted); return
+    if (helpStack.Contains(desc))
+    {
+        // Can't use __atomic_compare_exchange_n here because it expects a pointer for the second argument
+        // and you can't point to an enum constant value, so we have to use this GCC-only monstrosity. Hilarious.
+        __sync_bool_compare_and_swap(&desc->status, ACTIVE, ABORTED);
+        return;
+    }
+
+    // Goodbye livelock!
+    helpStack.Push(desc);
+
+    while (desc->status == ACTIVE && opid < desc->size)
+    {
+        Operation op = desc->ops[opid];
+        switch (op.type)
+        {
+        case InsertVertexOp:
+            // ret = InsertVertex()...
+            break;
+        case InsertEdgeOp:
+            // ret = InsertEdge()...
+            break;
+        case DeleteVertexOp:
+            // ret = DeleteVertex()...
+            break;
+        case DeleteEdgeOp:
+            // ret = DeleteEdge()...
+            break;
+        case FindOp:
+            // ret = Find()...
+            break;
+        }
+        opid++;
+    }
+
+    // Transaction has either succeeded or failed at this point, so pop descriptor off stack.
+    helpStack.Pop();
+
+    // Do housekeeping
+    if (ret == Success)
+    {
+        // All operations succeeded.
+        if (__sync_bool_compare_and_swap(&desc->status, ACTIVE, COMMITTED))
+        {
+            //MarkForDeletion(toDelete)
+        }
+    }
+    else
+    { // Some operation failed...transaction must abort
+        __sync_bool_compare_and_swap(&desc->status, ACTIVE, ABORTED);
+    }
+}
+
+bool AdjacencyList::ExecuteTransaction(Desc *desc)
+{
+    helpStack.Init();
+    ExecuteOperations(desc, 0);
+}
 
 bool AdjacencyList::IsNodePresent(Node *n, uint32_t key)
 {
@@ -41,11 +109,11 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
     {
         if (oldInfo->desc->ops[oldInfo->opid].type == DeleteVertexOp)
         {
-            ExecuteOperation(oldInfo->desc, oldInfo->opid);
+            ExecuteOperations(oldInfo->desc, oldInfo->opid);
         }
         else
         {
-            ExecuteOperation(oldInfo->desc, (oldInfo->opid) + 1);
+            ExecuteOperations(oldInfo->desc, (oldInfo->opid) + 1);
         }
     }
     else if (oldInfo->opid >= info->opid)
@@ -86,6 +154,31 @@ bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
                 return true;
             else
                 return false;
+        }
+    }
+}
+
+bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
+{
+    Node *curr = head;
+    Node *pred = NULL;
+    SuccessValue ret;
+    while (true)
+    {
+        LocatePred(pred, curr, vertex);
+        if (!IsNodePresent(curr, vertex))
+        {
+            ret = UpdateInfo(curr, nDesc, true);
+            if (ret != NULL)
+            {
+                MDList *mdlist = new MDList();
+                //In this case, it al- locates a new vertex and inserts it into the list using Compare-And-Swap to change pred.next to curr.
+                Node *toInsert = new Node(nDesc, vertex, mdlist, pred->next);
+                if (__atomic_compare_exchange_n(&pred->next, curr, toInsert, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+                    return true;
+                else
+                    return false;
+            }
         }
     }
 }

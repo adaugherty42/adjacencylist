@@ -21,6 +21,52 @@ uint32_t IsMarked(void *p, uint32_t mark)
     return (uintptr_t)p & mark;
 }
 
+// STL stack has no "contains" method...seriously!?
+class HelpStack
+{
+public:
+    uint32_t top;
+    Desc **arr;
+
+public:
+    void Init()
+    {
+        top = -1;
+        arr = new Desc *[1000];
+    }
+    Desc *Peek()
+    {
+        return arr[top];
+    }
+    Desc *Pop()
+    {
+        return top > -1 ? arr[top--] : NULL;
+    }
+    bool Push(Desc *desc)
+    {
+        if (top == 999)
+        {
+            return false;
+        }
+        else
+        {
+            arr[++top] = desc;
+            return true;
+        }
+    }
+    bool Contains(Desc *desc)
+    {
+        for (int i = 0; i < top; i++)
+        {
+            if (arr[i] == desc)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
 // LFTT Definitions
 enum TxStatus
 {
@@ -86,7 +132,8 @@ public:
     void InitializeVertices();
     void InitializeLists();
     Desc *AssignDesc(uint32_t size);
-    bool ExecuteOperation(Desc *desc, uint32_t opid);
+    bool ExecuteTransaction(Desc *desc);
+    void ExecuteOperations(Desc *desc, uint32_t opid);
     Node *head;
     Node *tail;
     int numThreads;
@@ -96,9 +143,8 @@ public:
     bool IsKeyPresent(NodeDesc *info);
     enum SuccessValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
     bool DeleteVertex(uint32_t vertex, NodeDesc *nDesc);
+    bool InsertVertex(uint32_t vertex, NodeDesc *nDesc);
+    bool InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid);
     Node *FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid);
     void LocatePred(Node *&pred, Node *&curr, uint32_t vertex);
-    // InsertEdge
-    // DeleteEdge
-    // DeleteVertex
 };
