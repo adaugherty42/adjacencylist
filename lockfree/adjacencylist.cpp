@@ -183,10 +183,6 @@ bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
     }
 }
 
-void ExecuteOps(Desc *desc, uint32_t opid)
-{
-}
-
 void AdjacencyList::LocatePred(Node *&pred, Node *&curr, uint32_t vertex)
 {
     while (curr->key < vertex)
@@ -208,7 +204,7 @@ Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid)
             NodeDesc *cDesc = curr->info;
             if (cDesc != nDesc)
             {
-                ExecuteOps(cDesc->desc, cDesc->desc->currentOp + 1);
+                ExecuteOperations(cDesc->desc, cDesc->desc->currentOp + 1);
             }
             if (IsKeyPresent(cDesc))
             {
