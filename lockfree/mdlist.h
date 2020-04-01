@@ -39,6 +39,7 @@ public:
     void FillNewNode(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp);
 
     MDListNode *head;
+    Node *headVertex;
     uint32_t basis;
     MDListNode list[];
 };

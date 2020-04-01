@@ -27,7 +27,7 @@ void AdjacencyList::ExecuteOperations(Desc *desc, uint32_t opid)
         switch (op.type)
         {
         case InsertVertexOp:
-            // ret = InsertVertex()...
+            // ret = InsertVertex();
             break;
         case InsertEdgeOp:
             // ret = InsertEdge()...
@@ -217,4 +217,68 @@ Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid)
         }
         return NULL;
     }
+}
+
+bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[])
+{
+    while (true)
+    {
+        Node *currVertex = FindVertex(vertex, nDesc, opid);
+        if (currVertex == NULL)
+        {
+            return false;
+        }
+        Node *pred = NULL;
+        Node *currEdge = currVertex->list->headVertex;
+        while (true)
+        {
+            MDListNode *pred = NULL;
+            // MDListNode currMdNode = MDListNode (currEdge);
+            // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
+            if (IsNodePresent(currEdge, edge))
+            {
+                return false;
+            }
+            else
+            {
+                MDListNode *n = new MDListNode();
+                n->info = nDesc;
+                // bool Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp);
+                MDList currVertexList = *currVertex->list;
+                // return currVertexList.MDList::Insert(n, currMdNode, pred, currDim, predDim);
+            }
+        }
+    }
+}
+
+bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid, uint32_t &currDim, uint32_t predDim, uint32_t k[])
+{
+    while (true)
+    {
+        Node *currVertex = FindVertex(vertex, nDesc, opid);
+        if (currVertex == NULL)
+        {
+            return false;
+        }
+        Node *pred = NULL;
+        Node *currEdge = currVertex->list->headVertex;
+        while (true)
+        {
+            MDListNode *pred = NULL;
+            // MDListNode currMdNode = MDListNode (currEdge);
+            // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
+            if (IsNodePresent(currEdge, edge))
+            {
+                return UpdateInfo(currEdge, nDesc, true) == Success;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}
+
+void AdjacencyList::DeleteTransaction(NodeDesc *n)
+{
 }
