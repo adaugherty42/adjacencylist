@@ -32,7 +32,7 @@ public:
     int *KeyToCoord(uint32_t key);
     void LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &currDim, uint32_t &predDim, int k[]);
     void FinishInserting(MDListNode *n, AdoptDesc *ad);
-    ReturnValue FinishDelete(MDListNode *n, uint32_t, NodeDesc *nDesc);
+    SuccessValue FinishDelete(MDListNode *n, uint32_t, NodeDesc *nDesc);
     bool Find(uint32_t key);
     bool Delete(MDListNode *&curr, MDListNode *&pred, uint32_t dc, uint32_t dp);
     bool Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp);

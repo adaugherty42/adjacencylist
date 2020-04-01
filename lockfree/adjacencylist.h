@@ -42,7 +42,7 @@ enum OpType
 };
 
 // Needed for UpdateInfo
-enum ReturnValue
+enum SuccessValue
 {
     Success,
     Fail,
@@ -92,10 +92,11 @@ public:
     int numThreads;
 
     bool IsNodePresent(Node *n, uint32_t key);
-    bool IsKeyPresent(NodeDesc *info, Desc *desc);
-    enum ReturnValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
+    // bool IsKeyPresent(NodeDesc *info, Desc *desc);
+    bool IsKeyPresent(NodeDesc *info);
+    enum SuccessValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
     bool DeleteVertex(uint32_t vertex, NodeDesc *nDesc);
-    Node *FindVertex();
+    Node *FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid);
     // InsertEdge
     // DeleteEdge
     // DeleteVertex

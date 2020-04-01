@@ -6,31 +6,29 @@ bool AdjacencyList::IsNodePresent(Node *n, uint32_t key)
     return n->key == key;
 }
 
-// in paper where this is from, it's just Insert / Delete
-// need to determine whether it's vertex or edge
-// what to do that is different
-bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
+// bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
+bool AdjacencyList::IsKeyPresent(NodeDesc *info)
 {
     Operation op = info->desc->ops[info->opid];
     OpType opType = op.type;
     TxStatus status = info->desc->status;
     switch (status)
     {
-    case ACTIVE:
-    {
-        if (info->desc == desc)
-            return (opType == FindOp || opType == InsertVertexOp);
-        else
-            return (opType == FindOp || opType == DeleteVertexOp);
-    }
+    // case ACTIVE:
+    // {
+    //     if (info->desc == desc)
+    //         return (opType == FindOp || opType == InsertVertexOp || opType == InsertEdgeOp);
+    //     else
+    //         return (opType == FindOp || opType == DeleteVertexOp || opType == DeleteEdgeOp);
+    // }
     case COMMITTED:
-        return (opType == FindOp || opType == InsertVertexOp);
+        return (opType == FindOp || opType == InsertVertexOp || opType == InsertEdgeOp);
     case ABORTED:
-        return (opType == FindOp || opType == DeleteVertexOp);
+        return (opType == FindOp || opType == DeleteVertexOp || opType == DeleteEdgeOp);
     }
 }
 
-enum ReturnValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKey)
+enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKey)
 {
     NodeDesc *oldInfo = n->info;
     if (IsMarked(oldInfo, F_adp))
@@ -56,16 +54,15 @@ enum ReturnValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKey
     }
 
     // not sure if this has the right second argument
-    bool hasKey = IsKeyPresent(oldInfo, oldInfo->desc);
+    bool hasKey = IsKeyPresent(oldInfo);
     if ((!hasKey && wantKey) || (hasKey && !wantKey))
         return Fail;
     if (info->desc->status != ACTIVE)
         return Fail;
-    // write our own CAS for this
-    // if (std::atomic_compare_exchange_strong(n->info, oldDesc, info))
-    //     return Success;
-    // else
-    //     return Retry;
+    if (__atomic_compare_exchange_n(&n->info, oldInfo, info, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+        return Success;
+    else
+        return Retry;
 }
 
 // vertex = Node key i think....
@@ -79,7 +76,7 @@ bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
         // LocatePred(pred, curr, vertex);
         if (IsNodePresent(curr, vertex))
         {
-            ReturnValue ret = UpdateInfo(curr, nDesc, true);
+            SuccessValue ret = UpdateInfo(curr, nDesc, true);
             if (ret != NULL)
             {
                 MDList *listPtr = curr->list;
@@ -88,5 +85,45 @@ bool AdjacencyList::DeleteVertex(uint32_t vertex, NodeDesc *nDesc)
                 ret = list.FinishDelete(list.head, 0, nDesc);
             }
         }
+    }
+}
+
+void ExecuteOps(Desc *desc, uint32_t opid)
+{
+}
+
+void LocatePred(Node *&pred, Node *&curr, uint32_t vertex)
+{
+    while (curr->key < vertex)
+    {
+        pred = curr;
+        curr = curr->next;
+    }
+}
+
+Node *AdjacencyList::FindVertex(uint32_t vertex, NodeDesc *nDesc, uint32_t opid)
+{
+    Node *curr = head;
+    Node *pred = NULL;
+    while (true)
+    {
+        LocatePred(pred, curr, vertex);
+        if (IsNodePresent(curr, vertex))
+        {
+            NodeDesc *cDesc = curr->info;
+            if (cDesc != nDesc)
+            {
+                ExecuteOps(cDesc->desc, cDesc->desc->currentOp + 1);
+            }
+            if (IsKeyPresent(cDesc))
+            {
+                if (nDesc->desc->status != ACTIVE)
+                {
+                    return NULL;
+                }
+                return curr;
+            }
+        }
+        return NULL;
     }
 }
