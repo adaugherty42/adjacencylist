@@ -3,7 +3,10 @@
 #include "adjacencylist.h"
 #include "structs.h"
 #include "mdlist.h"
-#include "vector.h"
+#include <vector>
+#include <thread>
+#include <iostream>
+#include <chrono>
 
 uint32_t num_threads = 4;
 uint32_t num_transactions = 1000;
@@ -53,7 +56,7 @@ void run(AdjacencyList *adjacencyList)
 
 int main()
 {
-    AdjacencyList* adjacencyList = AdjacencyList();
+    AdjacencyList *adjacencyList;
     adjacencyList->init(50000);
 
     // Preallocate some nodes
@@ -66,27 +69,30 @@ int main()
         descAlloc.pop();
         desc->ops[0].set(InsertVertexOp, random);
         nDesc->desc = desc;
-        adjacencyList.ExecuteTransaction(nDesc);
+        adjacencyList->ExecuteTransaction(nDesc);
     }
 
-    vector<thread*> threads;
+    std::vector<std::thread *> threads;
     threads.resize(num_threads);
 
-    auto start = high_resolution_clock::now();
-    
-    for(int j = 0; j < num_threads; j++){
-        threads.[j] = new thread(run, adjacencylist);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    for (int j = 0; j < num_threads; j++)
+    {
+        threads[j] = new std::thread(run, adjacencyList);
     }
 
-    for (thread *t : threads) {
-        if (t->joinable()) {
+    for (std::thread *t : threads)
+    {
+        if (t->joinable())
+        {
             t->join();
+        }
+        auto stop = std::chrono::high_resolution_clock::now();
+
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start);
+
+        std::cout << "Time: " << time_span.count() << " seconds.";
+
+        return 0;
     }
-    auto stop = high_resolution_clock::now();
-
-    duration<double> time_span = duration_cast<duration<double>>(stop - start);
-
-    std::cout << "Time: " << time_span.count() << " seconds.";
-
-    return 0;
-}
