@@ -1,5 +1,5 @@
+#pragma once
 #include "adjacencylist.h"
-#include "mdlist.h"
 #include <stack>
 
 std::stack<Node *> nodeAlloc;

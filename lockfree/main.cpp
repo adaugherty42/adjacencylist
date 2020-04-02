@@ -1,9 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <vector>
-#include "adjacencylist.h"
 #include "structs.h"
-#include "mdlist.h"
 #include <vector>
 #include <thread>
 #include <iostream>
@@ -55,7 +53,7 @@ void run(AdjacencyList *adjacencyList)
     }
 }
 
-int main()
+int main(void)
 {
     AdjacencyList *adjacencyList;
     adjacencyList->init(50000);

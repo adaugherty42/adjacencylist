@@ -1,12 +1,8 @@
 #pragma once
-
 #include <stdint.h>
 #include <stddef.h>
 #include "mdlist.h"
 #include <unordered_set>
-#include "mdlist.fwd.h"
-#include "adjacencylist.fwd.h"
-
 #define F_adp 0x01
 #define F_del 0x02
 #define F_all 0x03 // the paper calls it F_adp | F_del...overcomplicated for no reason
