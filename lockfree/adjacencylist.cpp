@@ -255,14 +255,13 @@ bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
         }
         Node *pred = nodeAlloc.top();
         nodeAlloc.pop();
-        Node *currEdge = currVertex->list->headVertex;
+        MDListNode *currEdge = currVertex->list->head;
         while (true)
         {
             MDListNode *pred = mdlNodeAlloc.top();
             mdlNodeAlloc.pop();
-            // MDListNode currMdNode = MDListNode (currEdge);
-            // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
-            if (IsNodePresent(currEdge, edge))
+            currVertex->list->LocatePred(currVertex->list->head, pred, currDim, predDim, k);
+            if (IsNodePresent(currVertex, edge))
             {
                 return false;
             }
@@ -270,9 +269,8 @@ bool AdjacencyList::InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
             {
                 MDListNode *n = new MDListNode();
                 n->info = nDesc;
-                // bool Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp);
                 MDList currVertexList = *currVertex->list;
-                // return currVertexList.MDList::Insert(n, currMdNode, pred, currDim, predDim);
+                return currVertexList.Insert(n, currEdge, pred, currDim, predDim);
             }
         }
     }
@@ -294,8 +292,7 @@ bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
         {
             MDListNode *pred = mdlNodeAlloc.top();
             mdlNodeAlloc.pop();
-            // MDListNode currMdNode = MDListNode (currEdge); // allocate
-            // currMdNode.MDList::LocatePred(currVertex->list->head, pred, currDim, predDim, k);
+            currVertex->list->LocatePred(currVertex->list->head, pred, currDim, predDim, k);
             if (IsNodePresent(currEdge, edge))
             {
                 return UpdateInfo(currEdge, nDesc, true) == Success;

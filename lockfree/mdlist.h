@@ -18,7 +18,7 @@ struct MDListNode
     NodeDesc *info; // paper just uses this without declaring or explaining it.....
 
     MDListNode();
-    void set(uint32_t k, AdoptDesc* a, NodeDesc* i);
+    void set(uint32_t k, AdoptDesc *a, NodeDesc *i);
 };
 
 struct AdoptDesc
@@ -26,7 +26,7 @@ struct AdoptDesc
     MDListNode *curr;
     uint32_t dp;
     uint32_t dc;
-    
+
     AdoptDesc();
     void set(MDListNode *cur, uint32_t p, uint32_t c);
 };
@@ -36,8 +36,8 @@ class MDList
 
 public:
     // use unsigned ints for everything...we don't need negatives here
-    int *KeyToCoord(uint32_t key);
-    void LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &currDim, uint32_t &predDim, int k[]);
+    uint32_t *KeyToCoord(uint32_t key);
+    void LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &currDim, uint32_t &predDim, uint32_t k[]);
     void FinishInserting(MDListNode *n, AdoptDesc *ad);
     bool Find(uint32_t key);
     bool Delete(MDListNode *&curr, MDListNode *&pred, uint32_t dc, uint32_t dp);
@@ -50,5 +50,5 @@ public:
     MDListNode list[];
 
     MDList();
-    void set(MDListNode* h, Node* hv, uint32_t b);
+    void set(MDListNode *h, Node *hv, uint32_t b);
 };

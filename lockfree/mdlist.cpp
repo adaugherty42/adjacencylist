@@ -1,9 +1,9 @@
 #include "structs.h"
 #include <cmath>
 
-int *MDList::KeyToCoord(uint32_t key)
+uint32_t *MDList::KeyToCoord(uint32_t key)
 {
-    int *k = new int[DIM];
+    uint32_t *k = new uint32_t[DIM];
     uint32_t basis = (uint32_t)ceil(std::pow(N, 1.0 / DIM));
     uint32_t quotient = key;
 
@@ -18,7 +18,7 @@ int *MDList::KeyToCoord(uint32_t key)
 
 // We want to pass in references to the current/pred dimensions, so that these values are also updated
 // in the calling function. The paper does not make this clear at all...
-void MDList::LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp, int k[])
+inline void MDList::LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp, uint32_t k[])
 {
     while (dc < DIM)
     {
