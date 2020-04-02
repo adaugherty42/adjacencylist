@@ -56,6 +56,7 @@ void run(AdjacencyList *adjacencyList)
 int main(void)
 {
     AdjacencyList *adjacencyList;
+    // Init creates preallocated pools of every kind of descriptor
     adjacencyList->init(50000);
 
     // Preallocate some nodes
@@ -76,11 +77,13 @@ int main(void)
 
     auto start = std::chrono::high_resolution_clock::now();
 
+    // send our threads off to perform the number of transactions specified at the top of the file
     for (int j = 0; j < num_threads; j++)
     {
         threads[j] = new std::thread(run, adjacencyList);
     }
 
+    // when the threads complete their transactions, rejoin the main thread
     for (std::thread *t : threads)
     {
         if (t->joinable())

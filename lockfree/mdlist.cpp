@@ -1,6 +1,8 @@
 #include "structs.h"
 #include <cmath>
 
+// Given a key, find its coordinate vector. Using a 32 bit keyspace and 8 dimensions
+// each coordinate is of base 16.
 uint32_t *MDList::KeyToCoord(uint32_t key)
 {
     uint32_t *k = new uint32_t[DIM];
@@ -47,6 +49,7 @@ inline void MDList::LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &d
     }
 }
 
+// Attempt to find a matching key within the MDList
 bool MDList::Find(uint32_t key)
 {
     MDListNode *curr = head;
@@ -90,6 +93,7 @@ bool MDList::Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uin
     AdoptDesc *ad = curr != NULL ? curr->aDesc : NULL;
     if (ad != NULL && dp != dc)
     {
+        // Another thread is already inserting, so let's help them out
         FinishInserting(curr, ad);
     }
     if (IsMarked(pred->child[dp], F_del))
@@ -101,10 +105,12 @@ bool MDList::Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uin
         }
     }
     FillNewNode(node, curr, pred, dc, dp);
+    // Try to CAS our node in
     if (__atomic_compare_exchange_n(&pred->child[dp], curr, node, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
     {
         if (ad != NULL)
         {
+            // Help the other thread finish its insertion
             FinishInserting(node, ad);
         }
         return true;
