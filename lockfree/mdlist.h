@@ -4,6 +4,7 @@
 #include <vector>
 #include "mdlist.fwd.h"
 #include "adjacencylist.fwd.h"
+#include <math.h>
 
 // Dimension of 8 with a 32 bit keyspace gives each coordinate in base 16!
 #define DIM 8

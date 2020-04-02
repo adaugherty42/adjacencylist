@@ -104,6 +104,7 @@ struct Operation
 {
     OpType type;
     uint32_t key;
+    void set(OpType t, uint32_t k);
 };
 
 struct Desc
@@ -134,7 +135,7 @@ struct Node
     Node *next;
 
     Node();
-    void set(NodeDesc* i, uint32_t k, MDList* l, Node* n);
+    void set(NodeDesc *i, uint32_t k, MDList *l, Node *n);
 };
 
 class AdjacencyList

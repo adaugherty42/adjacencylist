@@ -91,3 +91,9 @@ void Node::set(NodeDesc *i, uint32_t k, MDList *l, Node *n)
     list = l;
     next = n;
 }
+
+void Operation::set(OpType t, uint32_t k)
+{
+    type = t;
+    key = k;
+}
