@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <vector>
 #include "adjacencylist.h"
 #include "structs.h"
 #include "mdlist.h"
