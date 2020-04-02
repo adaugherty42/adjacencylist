@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <vector.h>
 #include "adjacencylist.h"
 #include "structs.h"
 #include "mdlist.h"
-#include "vector.h"
+
 
 uint32_t num_threads = 4;
 uint32_t num_transactions = 1000;
@@ -73,7 +74,7 @@ int main()
     threads.resize(num_threads);
 
     auto start = high_resolution_clock::now();
-    
+
     for(int j = 0; j < num_threads; j++){
         threads.[j] = new thread(run, adjacencylist);
     }
