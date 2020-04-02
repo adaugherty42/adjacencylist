@@ -3,6 +3,7 @@
 #include "adjacencylist.h"
 #include "structs.h"
 #include "mdlist.h"
+#include "vector.h"
 
 uint32_t num_threads = 4;
 uint32_t num_transactions = 1000;
@@ -52,8 +53,8 @@ void run(AdjacencyList *adjacencyList)
 
 int main()
 {
-    AdjacencyList adjacencyList = AdjacencyList();
-    adjacencyList.init(50000);
+    AdjacencyList* adjacencyList = AdjacencyList();
+    adjacencyList->init(50000);
 
     // Preallocate some nodes
     for (int i = 0; i < 1000; i++)
@@ -68,7 +69,24 @@ int main()
         adjacencyList.ExecuteTransaction(nDesc);
     }
 
-    // make threads and call run()
+    vector<thread*> threads;
+    threads.resize(num_threads);
+
+    auto start = high_resolution_clock::now();
+    
+    for(int j = 0; j < num_threads; j++){
+        threads.[j] = new thread(run, adjacencylist);
+    }
+
+    for (thread *t : threads) {
+        if (t->joinable()) {
+            t->join();
+    }
+    auto stop = high_resolution_clock::now();
+
+    duration<double> time_span = duration_cast<duration<double>>(stop - start);
+
+    std::cout << "Time: " << time_span.count() << " seconds.";
 
     return 0;
 }
