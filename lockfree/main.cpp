@@ -32,22 +32,22 @@ void run(AdjacencyList *adjacencyList)
             // 1-3: Insert Vertex
             if (random < 4)
             {
-                desc->ops[j].set(InsertVertexOp, rand() * N + 1);
+                desc->ops[j].set(InsertVertexOp, rand() * std::pow(2, 32) + 1);
             }
             // 4-6: Delete Vertex
             else if (random < 7)
             {
-                desc->ops[j].set(DeleteVertexOp, rand() * N + 1);
+                desc->ops[j].set(DeleteVertexOp, rand() * std::pow(2, 32) + 1);
             }
             // 7-8: Insert Edge
             else if (random < 9)
             {
-                desc->ops[j].set(InsertEdgeOp, rand() + N + 1);
+                desc->ops[j].set(InsertEdgeOp, rand() + std::pow(2, 32) + 1);
             }
             // 9-10: Delete Edge
             else
             {
-                desc->ops[j].set(DeleteEdgeOp, rand() + N + 1);
+                desc->ops[j].set(DeleteEdgeOp, rand() + std::pow(2, 32) + 1);
             }
         }
         nDesc->desc = desc;
