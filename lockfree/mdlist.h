@@ -1,10 +1,8 @@
 #pragma once
-
 #include <stdint.h>
 #include <vector>
-#include "mdlist.fwd.h"
-#include "adjacencylist.fwd.h"
 #include <math.h>
+#include "lfstructs.h"
 
 // Dimension of 8 with a 32 bit keyspace gives each coordinate in base 16!
 #define DIM 8
@@ -46,10 +44,9 @@ public:
     void FillNewNode(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp);
 
     MDListNode *head;
-    Node *headVertex;
     uint32_t basis;
     MDListNode list[];
 
     MDList();
-    void set(MDListNode *h, Node *hv, uint32_t b);
+    void set(MDListNode *h, uint32_t b);
 };

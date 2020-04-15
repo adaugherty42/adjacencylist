@@ -1,4 +1,5 @@
 #pragma once
+#include "lfstructs.h"
 #include "adjacencylist.h"
 #include <stack>
 
@@ -65,14 +66,12 @@ void NodeDesc::set(Desc *d, uint32_t opn)
 MDList::MDList()
 {
     head = new MDListNode();
-    headVertex = new Node();
     basis = -1;
 }
 
-void MDList::set(MDListNode *h, Node *hv, uint32_t b)
+void MDList::set(MDListNode *h, uint32_t b)
 {
     head = h;
-    headVertex = hv;
     basis = b;
 }
 

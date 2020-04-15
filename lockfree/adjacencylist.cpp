@@ -287,12 +287,14 @@ bool AdjacencyList::DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, 
         }
         Node *pred = nodeAlloc.top();
         nodeAlloc.pop();
-        Node *currEdge = currVertex->list->headVertex;
+        // need our new find method to get this node
+        // Node *currEdge = currVertex->list->headVertex;
         while (true)
         {
             MDListNode *pred = mdlNodeAlloc.top();
             mdlNodeAlloc.pop();
             currVertex->list->LocatePred(currVertex->list->head, pred, currDim, predDim, k);
+            // yeah need this find
             if (IsNodePresent(currEdge, edge))
             {
                 return UpdateInfo(currEdge, nDesc, true) == Success;
