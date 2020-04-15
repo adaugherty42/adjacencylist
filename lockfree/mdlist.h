@@ -7,6 +7,7 @@
 // Dimension of 8 with a 32 bit keyspace gives each coordinate in base 16!
 #define DIM 8
 #define N std::pow(2, 32)
+struct AdoptDesc;
 
 struct MDListNode
 {
@@ -14,7 +15,7 @@ struct MDListNode
     uint32_t k[DIM];
     MDListNode *child[DIM];
     AdoptDesc *aDesc;
-    NodeDesc *info; // paper just uses this without declaring or explaining it.....
+    NodeDesc *info;
 
     MDListNode();
     void set(uint32_t k, AdoptDesc *a, NodeDesc *i);

@@ -92,7 +92,7 @@ int main(void)
         }
         auto stop = std::chrono::high_resolution_clock::now();
 
-        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start);
+        std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double> >(stop - start);
 
         std::cout << "Time: " << time_span.count() << " seconds.";
 
