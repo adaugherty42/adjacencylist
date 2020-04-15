@@ -13,8 +13,8 @@ inline std::stack<AdoptDesc *> aDescAlloc;
 inline MDListNode::MDListNode()
 {
     key = -1;
-    aDesc = new AdoptDesc;
-    info = new NodeDesc;
+    aDesc = new AdoptDesc();
+    info = new NodeDesc();
 }
 
 inline void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
@@ -26,7 +26,7 @@ inline void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
 
 inline AdoptDesc::AdoptDesc()
 {
-    curr = new MDListNode;
+    curr = new MDListNode();
     dp = -1;
     dc = -1;
 }

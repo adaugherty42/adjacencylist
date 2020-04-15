@@ -10,8 +10,6 @@ enum TxStatus
 };
 
 // had to put Op at the end because compiler didn't like DeleteVertex
-// i think bc somewwhere it's defined as a function or something
-// it's 145 in the morning i'm not checking yet
 enum OpType
 {
     InsertVertexOp,
@@ -22,8 +20,6 @@ enum OpType
 };
 
 // Needed for UpdateInfo
-// can't put in header file bc enum
-// hey now
 enum SuccessValue
 {
     Fail,

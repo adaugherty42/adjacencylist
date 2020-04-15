@@ -6,7 +6,7 @@
 #include "mdlist.h"
 #define F_adp 0x01
 #define F_del 0x02
-#define F_all 0x03 // the paper calls it F_adp | F_del...overcomplicated for no reason
+#define F_all 0x03
 
 inline uintptr_t SetMark(void *p, uint32_t mark)
 {
@@ -21,7 +21,6 @@ inline uint32_t IsMarked(void *p, uint32_t mark)
     return (uintptr_t)p & mark;
 }
 
-// STL stack has no "contains" method...seriously!?
 class HelpStack
 {
 public:
@@ -92,12 +91,10 @@ public:
     int numThreads;
 
     bool IsNodePresent(Node *n, uint32_t key);
-    // bool IsKeyPresent(NodeDesc *info, Desc *desc);
     bool IsKeyPresent(NodeDesc *info, Desc *desc);
     enum SuccessValue UpdateInfo(Node *n, NodeDesc *info, bool wantKey);
     bool DeleteVertex(uint32_t vertex, NodeDesc *nDesc);
     bool InsertVertex(uint32_t vertex, NodeDesc *nDesc);
-    // bool InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t opid);
     bool InsertEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
     bool DeleteEdge(uint32_t vertex, uint32_t edge, NodeDesc *nDesc, uint32_t &currDim, uint32_t predDim, uint32_t k[]);
     Node *FindVertex(uint32_t vertex, NodeDesc *nDesc);

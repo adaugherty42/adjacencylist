@@ -35,7 +35,6 @@ class MDList
 {
 
 public:
-    // use unsigned ints for everything...we don't need negatives here
     uint32_t *KeyToCoord(uint32_t key);
     void LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &currDim, uint32_t &predDim, uint32_t k[]);
     void FinishInserting(MDListNode *n, AdoptDesc *ad);

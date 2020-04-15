@@ -19,7 +19,7 @@ uint32_t *MDList::KeyToCoord(uint32_t key)
 }
 
 // We want to pass in references to the current/pred dimensions, so that these values are also updated
-// in the calling function. The paper does not make this clear at all...
+// in the calling function.
 inline void MDList::LocatePred(MDListNode *&curr, MDListNode *&pred, uint32_t &dc, uint32_t &dp, uint32_t k[])
 {
     while (dc < DIM)
@@ -69,7 +69,7 @@ bool MDList::Delete(MDListNode *&curr, MDListNode *&pred, uint32_t dc, uint32_t 
         return false;
     }
     MDListNode *marked = (MDListNode *)SetMark(curr, F_del);
-    // I think this atomic method is GCC-only? It's the only C++ CAS that returns the old value, from what I can tell.
+
     MDListNode *child = __sync_val_compare_and_swap(&pred->child[dp], curr, marked);
 
     if ((MDListNode *)ClearMark(child, F_all) == curr)
@@ -141,8 +141,7 @@ void MDList::FinishInserting(MDListNode *n, AdoptDesc *ad)
     __atomic_compare_exchange_n(&n->aDesc, &ad, NULL, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 }
 
-// Helper method used by Insert. This logic could probably stay inside Insert itself, but the paper
-// separates them so we will too.
+// Helper method used by Insert
 void MDList::FillNewNode(MDListNode *&node, MDListNode *&curr, MDListNode *&prev, uint32_t &dc, uint32_t &dp)
 {
     AdoptDesc *ad = aDescAlloc.top();

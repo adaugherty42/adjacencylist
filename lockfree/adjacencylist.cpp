@@ -1,7 +1,6 @@
 #include "structs.h"
 #include <unordered_set>
 
-// Macos clang doesn't support thread_local!????!?!
 __thread HelpStack helpStack;
 
 void AdjacencyList::init(int numElem)
@@ -25,8 +24,6 @@ void AdjacencyList::ExecuteOperations(NodeDesc *nDesc, uint32_t opid)
     // if helpstack contains desc, CAS(&desc.flag, active, aborted); return
     if (helpStack.Contains(nDesc))
     {
-        // Can't use __atomic_compare_exchange_n here because it expects a pointer for the second argument
-        // and you can't point to an enum constant value, so we have to use this GCC-only monstrosity. Hilarious.
         __sync_bool_compare_and_swap(&nDesc->desc->status, ACTIVE, ABORTED);
         return;
     }
@@ -91,7 +88,6 @@ bool AdjacencyList::IsNodePresent(Node *n, uint32_t key)
     return n->key == key;
 }
 
-// bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
 bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
 {
     Operation op = info->desc->ops[info->opid];
