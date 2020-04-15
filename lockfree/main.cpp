@@ -11,7 +11,9 @@ uint32_t num_threads = 4;
 uint32_t num_transactions = 1000;
 uint32_t ops_per_transaction = 2;
 
-void run(AdjacencyList *adjacencyList)
+AdjacencyList *adjacencyList;
+
+void run()
 {
     // Execute the transactions
     for (int i = 0; i < num_transactions; i++)
@@ -55,7 +57,6 @@ void run(AdjacencyList *adjacencyList)
 
 int main(void)
 {
-    AdjacencyList *adjacencyList;
     // Init creates preallocated pools of every kind of descriptor
     adjacencyList->init(50000);
 
@@ -80,7 +81,7 @@ int main(void)
     // send our threads off to perform the number of transactions specified at the top of the file
     for (int j = 0; j < num_threads; j++)
     {
-        threads[j] = new std::thread(run, adjacencyList);
+        threads[j] = new std::thread(run);
     }
 
     // when the threads complete their transactions, rejoin the main thread

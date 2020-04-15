@@ -106,7 +106,7 @@ bool MDList::Insert(MDListNode *&node, MDListNode *&curr, MDListNode *&pred, uin
     }
     FillNewNode(node, curr, pred, dc, dp);
     // Try to CAS our node in
-    if (__atomic_compare_exchange_n(&pred->child[dp], curr, node, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+    if (__atomic_compare_exchange_n(&pred->child[dp], &curr, node, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
     {
         if (ad != NULL)
         {
@@ -128,8 +128,9 @@ void MDList::FinishInserting(MDListNode *n, AdoptDesc *ad)
     // i in range [dp,dc)
     for (int i = dp; i < dc; i++)
     {
+        child = curr->child[i];
         // call the builtin FetchAndOr method to set the flag on the child pointers
-        child = __atomic_fetch_or(&curr->child[i], F_adp, __ATOMIC_RELAXED);
+        child = (MDListNode*)__sync_fetch_and_or((uintptr_t**)curr->child[i], (uintptr_t*)F_adp);
         // clear our mark
         child = (MDListNode *)ClearMark(child, F_adp);
         if (n->child[i] == NULL)
@@ -137,7 +138,7 @@ void MDList::FinishInserting(MDListNode *n, AdoptDesc *ad)
             __atomic_compare_exchange_n(&n->child[i], NULL, child, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
         }
     }
-    __atomic_compare_exchange_n(&n->aDesc, ad, NULL, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+    __atomic_compare_exchange_n(&n->aDesc, &ad, NULL, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 }
 
 // Helper method used by Insert. This logic could probably stay inside Insert itself, but the paper

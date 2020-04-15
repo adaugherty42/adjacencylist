@@ -1,7 +1,8 @@
 #include "structs.h"
 #include <unordered_set>
 
-thread_local HelpStack helpStack;
+// Macos clang doesn't support thread_local!????!?!
+__thread HelpStack helpStack;
 
 void AdjacencyList::init(int numElem)
 {
@@ -143,7 +144,7 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
         return Fail;
     if (info->desc->status != ACTIVE)
         return Fail;
-    if (__atomic_compare_exchange_n(&n->info, oldInfo, info, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+    if (__atomic_compare_exchange_n(&n->info, &oldInfo, info, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
         return Success;
     else
         return Retry;
@@ -199,7 +200,7 @@ bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
                 Node *toInsert = nodeAlloc.top();
                 nodeAlloc.pop();
                 toInsert->set(nDesc, vertex, mdlist, pred->next);
-                if (__atomic_compare_exchange_n(&pred->next, curr, toInsert, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
+                if (__atomic_compare_exchange_n(&pred->next, &curr, toInsert, false, __ATOMIC_RELAXED, __ATOMIC_RELAXED))
                     return true;
                 else
                     return false;
