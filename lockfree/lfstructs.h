@@ -39,9 +39,9 @@ struct Desc
     uint32_t size;
     TxStatus status;
     int currentOp;
-    Operation ops[];
+    Operation *ops;
 
-    Desc();
+    Desc(uint32_t n);
     void set(uint32_t s, TxStatus ts, int c);
 };
 

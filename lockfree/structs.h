@@ -2,6 +2,7 @@
 #include "lfstructs.h"
 #include "adjacencylist.h"
 #include <stack>
+#include <iostream>
 
 inline std::stack<Node *> nodeAlloc;
 inline std::stack<Desc *> descAlloc;
@@ -12,9 +13,15 @@ inline std::stack<AdoptDesc *> aDescAlloc;
 
 inline MDListNode::MDListNode()
 {
+//        std::cout << "MDLNode const start \n";
+
     key = -1;
-    aDesc = new AdoptDesc();
+    aDesc = (AdoptDesc*) malloc(sizeof(AdoptDesc));
+    k = (uint32_t*)(sizeof(uint32_t)*DIM);
+    child = (MDListNode**) malloc(sizeof(MDListNode*)*DIM);
     info = new NodeDesc();
+//        std::cout << "MDLNode const end \n";
+
 }
 
 inline void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
@@ -26,9 +33,14 @@ inline void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
 
 inline AdoptDesc::AdoptDesc()
 {
-    curr = new MDListNode();
+    //    std::cout << "AdoptDesc const start \n";
+
+    curr = (MDListNode*) malloc(sizeof(MDListNode));
     dp = -1;
     dc = -1;
+
+       // std::cout << "AdoptDesc const start \n";
+
 }
 
 inline void AdoptDesc::set(MDListNode *cur, uint32_t p, uint32_t c)
@@ -38,10 +50,15 @@ inline void AdoptDesc::set(MDListNode *cur, uint32_t p, uint32_t c)
     dc = c;
 }
 
-inline Desc::Desc()
+inline Desc::Desc(uint32_t n)
 {
+       // std::cout << "Desc const start \n";
+
     size = -1;
     currentOp = -1;
+    ops = (Operation*) malloc(sizeof(Operation) * n);
+        //std::cout << "Desc const end \n";
+
 }
 
 inline void Desc::set(uint32_t s, TxStatus ts, int c)
@@ -53,8 +70,12 @@ inline void Desc::set(uint32_t s, TxStatus ts, int c)
 
 inline NodeDesc::NodeDesc()
 {
-    desc = new Desc();
+       // std::cout << "nodeDesc const start \n";
+
+    desc = new Desc(2);
     opid = -1;
+        // std::cout << "nodeDesc const end \n";
+
 }
 
 inline void NodeDesc::set(Desc *d, uint32_t opn)
@@ -65,8 +86,12 @@ inline void NodeDesc::set(Desc *d, uint32_t opn)
 
 inline MDList::MDList()
 {
+       // std::cout << "MDList const start \n";
+
     head = new MDListNode();
     basis = -1;
+//        std::cout << "MDlist const end \n";
+
 }
 
 inline void MDList::set(MDListNode *h, uint32_t b)
@@ -77,10 +102,15 @@ inline void MDList::set(MDListNode *h, uint32_t b)
 
 inline Node::Node()
 {
+   //std::cout << "node const start \n";
     info = new NodeDesc();
     key = -1;
     list = new MDList();
-    next = new Node();
+    //std::cout << "node const got heres \n";
+    next = (Node*) malloc(sizeof(struct Node));
+   //std::cout << "node const end \n";
+
+
 }
 
 inline void Node::set(NodeDesc *i, uint32_t k, MDList *l, Node *n)

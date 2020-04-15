@@ -58,7 +58,8 @@ void run()
 int main(void)
 {
     // Init creates preallocated pools of every kind of descriptor
-    adjacencyList->init(50000);
+    adjacencyList = new AdjacencyList(num_threads);
+    adjacencyList->init(50000, ops_per_transaction);
 
     // Preallocate some nodes
     for (int i = 0; i < 1000; i++)
@@ -69,6 +70,7 @@ int main(void)
         Desc *desc = descAlloc.top();
         descAlloc.pop();
         desc->ops[0].set(InsertVertexOp, random);
+
         nDesc->desc = desc;
         adjacencyList->ExecuteTransaction(nDesc);
     }

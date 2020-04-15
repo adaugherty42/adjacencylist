@@ -12,8 +12,8 @@ struct AdoptDesc;
 struct MDListNode
 {
     uint32_t key;
-    uint32_t k[DIM];
-    MDListNode *child[DIM];
+    uint32_t *k;
+    MDListNode **child;
     AdoptDesc *aDesc;
     NodeDesc *info;
 

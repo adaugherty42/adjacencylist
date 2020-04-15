@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include <iostream>
 #include <unordered_set>
 #include "lfstructs.h"
 #include "mdlist.h"
@@ -24,7 +25,7 @@ inline uint32_t IsMarked(void *p, uint32_t mark)
 class HelpStack
 {
 public:
-    uint32_t top;
+    int top;
     NodeDesc **arr;
 
 public:
@@ -32,6 +33,10 @@ public:
     {
         top = -1;
         arr = new NodeDesc *[1000];
+    }
+    int size()
+    {
+        return top;
     }
     NodeDesc *Peek()
     {
@@ -55,12 +60,15 @@ public:
     }
     bool Contains(NodeDesc *nDesc)
     {
+        std::cout << top << nDesc<< " contain start\n";
         for (int i = 0; i < top; i++)
         {
             if (arr[i] == nDesc)
             {
+                
                 return true;
             }
+           // std::cout << i << "\n";
         }
         return false;
     }
@@ -80,7 +88,8 @@ struct Node
 class AdjacencyList
 {
 public:
-    void init(int numElem);
+    AdjacencyList(int t);
+    void init(int numElem, uint32_t num_ops);
     void InitializeVertices();
     void InitializeLists();
     Desc *AssignDesc(uint32_t size);

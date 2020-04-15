@@ -1,20 +1,48 @@
 #include "structs.h"
 #include <unordered_set>
+#include <pthread.h>
+#include <iostream>
 
-__thread HelpStack helpStack;
+thread_local HelpStack helpStack;
 
-void AdjacencyList::init(int numElem)
+AdjacencyList::AdjacencyList(int t)
 {
+    head = new Node();
+    tail = head;
+    numThreads = t;
+}
+
+void AdjacencyList::init(int numElem, uint32_t num_ops)
+{
+    std::cout << "init start \n";
+
+    nodeAlloc = std::stack<Node *>();
+    descAlloc = std::stack<Desc *>();
+    nDescAlloc = std::stack<NodeDesc *>();
+    mdlistAlloc = std::stack<MDList *>();
+    mdlNodeAlloc = std::stack<MDListNode *>();
+    aDescAlloc = std::stack<AdoptDesc *>();
+
     for (int i = 0; i < numElem; i++)
     {
-        nodeAlloc.push(new Node());
-        descAlloc.push(new Desc());
-        nDescAlloc.push(new NodeDesc());
-        mdlistAlloc.push(new MDList());
-        mdlNodeAlloc.push(new MDListNode());
-        aDescAlloc.push(new AdoptDesc());
+        Node* node = new Node();
+        nodeAlloc.push(node);
+        Desc* desc = new Desc(num_ops);
+        descAlloc.push(desc);
+        NodeDesc* nDesc = new NodeDesc();
+        nDescAlloc.push(nDesc);
+        MDList* mdList = new MDList();
+        mdlistAlloc.push(mdList);
+        MDListNode* mdlNode = new MDListNode();
+        mdlNodeAlloc.push(mdlNode);
+        AdoptDesc* aDesc = new AdoptDesc();
+        aDescAlloc.push(aDesc);
     }
+    
+    std::cout << "init end \n";
 }
+
+ 
 
 void AdjacencyList::ExecuteOperations(NodeDesc *nDesc, uint32_t opid)
 {
@@ -111,6 +139,7 @@ bool AdjacencyList::IsKeyPresent(NodeDesc *info, Desc *desc)
 
 enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKey)
 {
+        std::cout << "UPDATEINFORMation\n";
     NodeDesc *oldInfo = n->info;
     if (IsMarked(oldInfo, F_adp))
     {
@@ -118,8 +147,10 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
         // DoDelete(n);
         return Retry;
     }
+        std::cout << "waoh\n";
     if (oldInfo->desc != info->desc)
     {
+        
         if (oldInfo->desc->ops[oldInfo->opid].type == DeleteVertexOp)
         {
             ExecuteOperations(oldInfo, oldInfo->opid);
@@ -133,6 +164,7 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
     {
         return Success;
     }
+
 
     // not sure if this has the right second argument
     bool hasKey = IsKeyPresent(oldInfo, info->desc);
@@ -179,6 +211,7 @@ SuccessValue AdjacencyList::FinishDelete(MDListNode *n, uint32_t dc, NodeDesc *n
 
 bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
 {
+
     Node *curr = head;
     Node *pred = nodeAlloc.top();
     nodeAlloc.pop();
@@ -207,6 +240,8 @@ bool AdjacencyList::InsertVertex(uint32_t vertex, NodeDesc *nDesc)
 
 void AdjacencyList::LocatePred(Node *&pred, Node *&curr, uint32_t vertex)
 {
+
+    int i = 0;
     while (curr->key < vertex)
     {
         pred = curr;
