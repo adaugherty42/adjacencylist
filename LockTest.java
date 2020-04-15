@@ -1,14 +1,10 @@
-
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Vector;
 
 public class LockTest {
-    static int NUM_THREADS = 2;
+    static int NUM_THREADS = 4;
     static int NUM_RESOURCES = 64;
-    static int NUM_ITERATIONS = 30;
+    static int NUM_ITERATIONS = 300;
 
     public static void main(String[] args) {
         // Grab args if they exist
@@ -72,7 +68,6 @@ class LockThread implements Runnable {
             ArrayList<Node> nodes = new ArrayList<Node>();
             // For each iteration, we need to generate a random list of resources to do operations on
             while(resources.size()<3) {
-                int randomVal = (int)(Math.random() * Integer.MAX_VALUE);
 
                 // get random value
                 int rand = (int)(Math.random() * numResources);
@@ -122,6 +117,5 @@ class LockThread implements Runnable {
             }
             lockable.unlock();
         }
-
     }
 }

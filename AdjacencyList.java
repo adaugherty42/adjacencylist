@@ -122,30 +122,4 @@ public class AdjacencyList<T> {
             System.out.println();
         }
     }
-
-     public static void main(String[] args) {
-         AdjacencyList list = new AdjacencyList();
-         list.insertVertex(5);
-         list.insertVertex(4);
-         list.insertVertex(12);
-         list.insertEdge(5, 4);
-         list.insertEdge(5, 12);
-         list.print();
-         System.out.println();
-         list.deleteEdge(5, 4);
-         list.insertVertex(6);
-         list.insertEdge(6, 4);
-         list.print();
-         System.out.println();
-         list.deleteVertex(12);
-         list.print();
-         System.out.println();
-         list.deleteVertex(4);
-         list.print();
-         System.out.println();
-         list.deleteVertex(5);
-         list.insertEdge(5, 3);
-         list.deleteVertex(3);
-         list.print();
-     }
 }
