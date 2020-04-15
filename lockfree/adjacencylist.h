@@ -8,15 +8,15 @@
 #define F_del 0x02
 #define F_all 0x03 // the paper calls it F_adp | F_del...overcomplicated for no reason
 
-uintptr_t SetMark(void *p, uint32_t mark)
+inline uintptr_t SetMark(void *p, uint32_t mark)
 {
     return ((uintptr_t)(p) | mark);
 }
-uintptr_t ClearMark(void *p, uint32_t mark)
+inline uintptr_t ClearMark(void *p, uint32_t mark)
 {
     return ((uintptr_t)(p) & ~mark);
 }
-uint32_t IsMarked(void *p, uint32_t mark)
+inline uint32_t IsMarked(void *p, uint32_t mark)
 {
     return (uintptr_t)p & mark;
 }

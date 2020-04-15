@@ -3,79 +3,79 @@
 #include "adjacencylist.h"
 #include <stack>
 
-std::stack<Node *> nodeAlloc;
-std::stack<Desc *> descAlloc;
-std::stack<NodeDesc *> nDescAlloc;
-std::stack<MDList *> mdlistAlloc;
-std::stack<MDListNode *> mdlNodeAlloc;
-std::stack<AdoptDesc *> aDescAlloc;
+inline std::stack<Node *> nodeAlloc;
+inline std::stack<Desc *> descAlloc;
+inline std::stack<NodeDesc *> nDescAlloc;
+inline std::stack<MDList *> mdlistAlloc;
+inline std::stack<MDListNode *> mdlNodeAlloc;
+inline std::stack<AdoptDesc *> aDescAlloc;
 
-MDListNode::MDListNode()
+inline MDListNode::MDListNode()
 {
     key = -1;
     aDesc = new AdoptDesc;
     info = new NodeDesc;
 }
 
-void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
+inline void MDListNode::set(uint32_t k, AdoptDesc *a, NodeDesc *i)
 {
     key = k;
     aDesc = a;
     info = i;
 }
 
-AdoptDesc::AdoptDesc()
+inline AdoptDesc::AdoptDesc()
 {
     curr = new MDListNode;
     dp = -1;
     dc = -1;
 }
 
-void AdoptDesc::set(MDListNode *cur, uint32_t p, uint32_t c)
+inline void AdoptDesc::set(MDListNode *cur, uint32_t p, uint32_t c)
 {
     curr = cur;
     dp = p;
     dc = c;
 }
 
-Desc::Desc()
+inline Desc::Desc()
 {
     size = -1;
     currentOp = -1;
 }
 
-void Desc::set(uint32_t s, TxStatus ts, int c)
+inline void Desc::set(uint32_t s, TxStatus ts, int c)
 {
     size = s;
     status = ts;
     currentOp = c;
 }
 
-NodeDesc::NodeDesc()
+inline NodeDesc::NodeDesc()
 {
     desc = new Desc();
     opid = -1;
 }
 
-void NodeDesc::set(Desc *d, uint32_t opn)
+inline void NodeDesc::set(Desc *d, uint32_t opn)
 {
     desc = d;
     opid = opn;
 }
 
-MDList::MDList()
+inline MDList::MDList()
 {
     head = new MDListNode();
     basis = -1;
 }
 
-void MDList::set(MDListNode *h, uint32_t b)
+inline void MDList::set(MDListNode *h, uint32_t b)
 {
     head = h;
     basis = b;
 }
 
-Node::Node()
+inline Node::Node()
 {
     info = new NodeDesc();
     key = -1;
@@ -83,7 +83,7 @@ Node::Node()
     next = new Node();
 }
 
-void Node::set(NodeDesc *i, uint32_t k, MDList *l, Node *n)
+inline void Node::set(NodeDesc *i, uint32_t k, MDList *l, Node *n)
 {
     info = i;
     key = k;
@@ -91,7 +91,7 @@ void Node::set(NodeDesc *i, uint32_t k, MDList *l, Node *n)
     next = n;
 }
 
-void Operation::set(OpType t, uint32_t k)
+inline void Operation::set(OpType t, uint32_t k)
 {
     type = t;
     key = k;
