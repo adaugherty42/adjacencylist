@@ -1,13 +1,15 @@
 import java.util.ArrayList;
 import java.util.Vector;
 
+// our main driver program
 public class LockTest {
     static int NUM_THREADS = 4;
     static int NUM_RESOURCES = 64;
     static int NUM_ITERATIONS = 300;
 
     public static void main(String[] args) {
-        // Grab args if they exist
+        // Grab args if they exist in the format
+        // java LockTest <NUM_THREADS> <NUM_RESOURCES> <NUM_ITERATIONS>
         if (args.length > 1) {
             NUM_THREADS = Integer.parseInt(args[1]);
         }
@@ -18,13 +20,16 @@ public class LockTest {
             NUM_ITERATIONS = Integer.parseInt(args[3]);
         }
 
+        // initialize the new list and the MRLOCK
         AdjacencyList<Integer> adjList = new AdjacencyList<>();
         MRLock lock = new MRLock();
+
         // This ResourceAllocator will be passed to the spawned threads, which will use it to
         // create Lockable objects for their requests.
         ResourceAllocator resourceAlloc = new ResourceAllocator(lock, NUM_RESOURCES);
 
         // Prepopulate list with a bunch of vertexes
+        // to make it such that operations aren't running into an empty list constantly
         for (int i = 0; i < NUM_RESOURCES / 2; i++) {
             adjList.insertVertex(i);
         }
@@ -44,16 +49,19 @@ public class LockTest {
             }
         }
 
+        // print the list at the end
         adjList.print();
     }
 }
 
+// thread class to run our driver program
 class LockThread implements Runnable {
     AdjacencyList<Integer> adjList;
     ResourceAllocator resourceAlloc;
     int numIterations;
     int numResources;
 
+    // allocating memory
     public LockThread(AdjacencyList<Integer> adjList, ResourceAllocator resourceAlloc, int numIterations) {
         this.adjList = adjList;
         this.resourceAlloc = resourceAlloc;
@@ -61,6 +69,8 @@ class LockThread implements Runnable {
         this.numResources = this.resourceAlloc.lock.buffer.length;
     }
 
+    // for each thread, run a certain subset of operations
+    // for our testing purposes, we divided runs into vertex, edge, and "both" types
     @Override
     public void run() {
         for (int i = 0; i < numIterations; i++) {
@@ -69,7 +79,7 @@ class LockThread implements Runnable {
             // For each iteration, we need to generate a random list of resources to do operations on
             while(resources.size()<3) {
 
-                // get random value
+                // get random value for the node
                 int rand = (int)(Math.random() * numResources);
 
                 // see if it's in list
@@ -85,14 +95,12 @@ class LockThread implements Runnable {
 
             }
 
-
-
             // Create lockable object
             MRLockable lockable = resourceAlloc.createLockable(resources);
             // Lock
             lockable.lock();
 
-            // Do stuff
+            // execute operations depending on random value
             int randOp = (int)(Math.random()*3);
             switch(randOp)
             {

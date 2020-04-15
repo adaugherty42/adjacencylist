@@ -1,14 +1,18 @@
 import java.util.BitSet;
 import java.util.Vector;
 
+// resource manager
 public class ResourceAllocator {
     MRLock lock;
 
+    // takes the lock and the number of resources
     public ResourceAllocator(MRLock lock, int numResources) {
         this.lock = lock;
         this.lock.init(numResources);
     }
 
+    // creates a lockable object by setting the resource bitset
+    // and returning the new lockable object with an initialized resource set
     MRLockable createLockable(Vector<Integer> resources) {
         BitSet resourceMask = new BitSet(lock.buffer.length);
         for (int i = 0; i < resources.size(); i++) {
@@ -18,6 +22,7 @@ public class ResourceAllocator {
     }
 }
 
+// MRLockable object has the lock, lock handle, and the resource bitset mask
 class MRLockable {
     MRLock lock;
     int lockHandle;

@@ -1,10 +1,13 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
+// basic adjacency list, adapted for interaction with the FGLockingList
+// and MRLock classes
 public class AdjacencyList<T> {
-    // technically the correct plural is "vertices" but that looks confusing!
+    // technically the correct plural is "vertices"
     private FGLockingList<T> vertexes;
 
+    // an adjacency list consists of a back bone of a fine grained locking list
     public AdjacencyList() {
         this.vertexes = new FGLockingList<>();
     }
@@ -13,6 +16,8 @@ public class AdjacencyList<T> {
         this.vertexes = vertexes;
     }
 
+    // to insert a vertex, need to verify that the vertex does not exist
+    // and otherwise add
     public boolean insertVertex(T val) {
         if (find(val)) {
             return false;
@@ -22,6 +27,12 @@ public class AdjacencyList<T> {
         }
     }
 
+    // opposite logic of insert
+    // need to check if the node exists
+    // and if it does, then delete it
+    // but first remove all of the edges connected to it
+    // for instance if removing vertex 5 and 4 is connected,
+    // need to remove 5 from 4's sublist
     public boolean deleteVertex(T val) {
         int i = indexOf(val);
         if (i == -1) {
@@ -33,6 +44,9 @@ public class AdjacencyList<T> {
         }
     }
 
+    // inserts an edge
+    // as if in an undirected graph
+    // such that both endpoints add each other their sublists
     public boolean insertEdge(T from, T to) {
         int i = indexOf(from);
         int j = indexOf(to);
@@ -54,6 +68,8 @@ public class AdjacencyList<T> {
         }
     }
 
+    // deletes an edge
+    // with the some conditions as the insertion
     public boolean deleteEdge(T from, T to) {
         int i = indexOf(from);
         int j = indexOf(to);
@@ -68,21 +84,23 @@ public class AdjacencyList<T> {
         }
     }
 
+    // if the indexOf method returns -1,
+    // it was not found in the list
     public boolean find(T val) {
         return indexOf(val) > -1;
     }
 
     // helper method to delete all
+    // no need to return a value here
     private void deleteAllEdges(T toDelete) {
         for (Node<T> vertex : vertexes.list) {
             if (!vertex.edges.get(0).equals(toDelete)) {
-                // we don't need the return value here, it will just remove the edge if it
-                // exists
                 vertex.edges.remove(toDelete);
             }
         }
     }
 
+    // finds the index of a given value in the sublist
     private int indexOf(T val) {
         int i = -1;
         boolean match = false;
@@ -97,19 +115,24 @@ public class AdjacencyList<T> {
         return match ? i : -1;
     }
 
+    // defers to the FGLockingList get value
     public Node<T> getNode(T val) {
         return this.vertexes.getNode(val);
     }
 
+    // determines the full size of the list of vertices
     public int size() {
         return this.vertexes.size();
     }
 
+    // prints the current state of the list
     public void print() {
         if (vertexes.size() == 0) {
             System.out.println("The adjacency list is currently empty.");
             return;
         }
+        // prints out list in the format
+        // <VERTEX>: [<CONNECTED_VERTEX1>, <CONNECTED_VERTEX2>, ... <CONNECTED_VERTEX_N>]
         for (Node<T> vertex : vertexes.list) {
             System.out.print(vertex.edges.get(0));
             if (vertex.edges.size() > 1) {
