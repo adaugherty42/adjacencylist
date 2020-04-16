@@ -60,7 +60,7 @@ public:
     }
     bool Contains(NodeDesc *nDesc)
     {
-        std::cout << top << nDesc<< " contain start\n";
+        // std::cout << top << nDesc<< " contain start\n";
         for (int i = 0; i < top; i++)
         {
             if (arr[i] == nDesc)

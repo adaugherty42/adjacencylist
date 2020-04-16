@@ -55,7 +55,7 @@ inline Desc::Desc(uint32_t n)
        // std::cout << "Desc const start \n";
 
     size = -1;
-    currentOp = -1;
+    currentOp = 0;
     ops = (Operation*) malloc(sizeof(Operation) * n);
         //std::cout << "Desc const end \n";
 

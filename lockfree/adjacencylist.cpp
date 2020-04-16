@@ -3,12 +3,15 @@
 #include <pthread.h>
 #include <iostream>
 
-thread_local HelpStack helpStack;
+__thread HelpStack helpStack;
 
 AdjacencyList::AdjacencyList(int t)
 {
     head = new Node();
-    tail = head;
+    head->set(NULL, 0, NULL, NULL);
+    tail = new Node();
+    tail->set(NULL, 0xFFFFFFFF, NULL, NULL);
+    head->next = tail;
     numThreads = t;
 }
 
@@ -150,7 +153,6 @@ enum SuccessValue AdjacencyList::UpdateInfo(Node *n, NodeDesc *info, bool wantKe
         std::cout << "waoh\n";
     if (oldInfo->desc != info->desc)
     {
-        
         if (oldInfo->desc->ops[oldInfo->opid].type == DeleteVertexOp)
         {
             ExecuteOperations(oldInfo, oldInfo->opid);
