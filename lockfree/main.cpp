@@ -62,6 +62,7 @@ int main(void)
     adjacencyList->init(50000, ops_per_transaction);
 
     // Preallocate some nodes
+    std::cout << "preallocate b\n";
     for (int i = 0; i < 1000; i++)
     {
         int random = rand() * 10000 + 1;
@@ -74,6 +75,8 @@ int main(void)
         nDesc->desc = desc;
         adjacencyList->ExecuteTransaction(nDesc);
     }
+    std::cout << "preallocate a\n";
+
 
     std::vector<std::thread *> threads;
     threads.resize(num_threads);

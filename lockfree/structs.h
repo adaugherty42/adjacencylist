@@ -15,7 +15,7 @@ inline MDListNode::MDListNode()
 {
 //        std::cout << "MDLNode const start \n";
 
-    key = -1;
+    key = 0;
     aDesc = (AdoptDesc*) malloc(sizeof(AdoptDesc));
     k = (uint32_t*)(sizeof(uint32_t)*DIM);
     child = (MDListNode**) malloc(sizeof(MDListNode*)*DIM);
@@ -36,8 +36,8 @@ inline AdoptDesc::AdoptDesc()
     //    std::cout << "AdoptDesc const start \n";
 
     curr = (MDListNode*) malloc(sizeof(MDListNode));
-    dp = -1;
-    dc = -1;
+    dp = 0;
+    dc = 0;
 
        // std::cout << "AdoptDesc const start \n";
 
@@ -54,7 +54,7 @@ inline Desc::Desc(uint32_t n)
 {
        // std::cout << "Desc const start \n";
 
-    size = -1;
+    size = 0;
     currentOp = 0;
     ops = (Operation*) malloc(sizeof(Operation) * n);
         //std::cout << "Desc const end \n";
@@ -73,7 +73,7 @@ inline NodeDesc::NodeDesc()
        // std::cout << "nodeDesc const start \n";
 
     desc = new Desc(2);
-    opid = -1;
+    opid = 0;
         // std::cout << "nodeDesc const end \n";
 
 }
